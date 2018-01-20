@@ -1,0 +1,6 @@
+[submodule "src/Astro"]
+	path = src/Astro
+	url = git@github.com:patriciogonzalezvivo/Astro.git
+[submodule "src/GeoLoc"]
+	path = src/GeoLoc
+	url = git@github.com:patriciogonzalezvivo/GeoLoc.git
