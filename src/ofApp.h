@@ -13,6 +13,13 @@
 
 #define TIME_ANIMATION
 
+struct Line {
+    ofPoint A;
+    ofPoint B;
+    ofPoint T;
+    std::string text;
+};
+
 class ofApp : public ofBaseApp{
 public:
     void setup();
@@ -33,14 +40,22 @@ public:
     
     ofxSyphonServer syphon;
     
+    // Observers
     Observer    obs;
     ofEasyCam   cam;
     
+    // Bodies
     Body        sun;
     ofxBody     moon;
     vector<ofxBody> planets;
     
-    double      day;
-    int         month;
+    // HUD
+    vector<Line> lines;
+    
+    double      scale;
+    
+    // Time
+    double      day, prevDay;
+    int         month, prevMonth;
     int         year;
 };

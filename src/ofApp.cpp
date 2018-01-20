@@ -6,6 +6,8 @@
 #include "TimeOps.h"
 double initial_jd;
 
+const std::string month_names[] = { "ENE", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC" };
+
 //--------------------------------------------------------------
 void ofApp::setup(){
     double lng = 0.;
@@ -14,6 +16,8 @@ void ofApp::setup(){
     obs = Observer(lng, lat);
     
     initial_jd = obs.getJulianDate();
+    
+    scale = 100.;
 
     BodyId planets_names[] = { MERCURY, VENUS, EARTH, MARS, JUPITER, SATURN, URANUS, NEPTUNE, PLUTO, LUNA };
     float planets_sizes[] = { 0.0561, 0.1377, 0.17, 0.255, 1.87, 1.615, 0.68, 0.68, 0.0306, 0.0459 };
@@ -34,6 +38,7 @@ void ofApp::setup(){
 void ofApp::update(){
 
     // TIME CALCULATIONS
+    // --------------------------------
 #ifndef TIME_ANIMATION
     obs.setTime();
 #else
@@ -42,6 +47,7 @@ void ofApp::update(){
     TimeOps::JDtoMDY(obs.getJulianDate(), month, day, year);
     
     // BODIES
+    // --------------------------------
     
     // Update sun position
     sun.compute(obs);
@@ -49,27 +55,42 @@ void ofApp::update(){
     // Update planets positions
     for ( int i = 0; i < planets.size(); i++) {
         planets[i].compute(obs);
-        planets[i].m_helioC = planets[i].getHelioPosition() * 100.;
+        planets[i].m_helioC = planets[i].getHelioPosition() * scale;
     }
     
-    // Update moon position
+    // Update moon position (the distance from the earth is not in scale)
     moon.compute(obs);
-    moon.m_helioC = ( moon.getGeoPosition() * 2000. ) + ( planets[2].getHelioPosition() * 100. );
-}
-
-std::string getDateString(Observer &_obs) {
-    double day = 0.0;
-    int month, year = 0;
+    moon.m_helioC = ( moon.getGeoPosition() * 20*scale ) + ( planets[2].getHelioPosition() * scale);
     
-    return ofToString(year) + "/" + ofToString(month,2,'0') + "/" + ofToString(int(day),2,'0');
+    // HUD
+    // --------------------------------
+    
+    if (month != prevMonth && int(day) == 1) {
+        ofVec3f toEarth = planets[2].m_helioC;
+        Line newLine;
+        newLine.A = toEarth.normalize() * 80.;
+        newLine.B = toEarth.normalize() * 90.;
+        
+        newLine.text = month_names[month-1];
+        newLine.T = toEarth.normalize() * 70.;
+        
+        lines.push_back(newLine);
+    }
+    else if (int(day) != int(prevDay)) {
+        ofVec3f toEarth = planets[2].m_helioC;
+        Line newLine;
+        newLine.A = toEarth.normalize() * 85.;
+        newLine.B = toEarth.normalize() * 90.;
+        lines.push_back(newLine);
+    }
+    prevMonth = month;
+    prevDay = day;
 }
 
 void drawBillboard(std::string &str, int x , int y) {
-    ofFill();
-    ofSetColor(0);
-    ofDrawRectangle(x - str.length() * 5, y-15, str.length() * 10, 20);
     ofSetColor(255);
-    ofDrawBitmapString(str, x - str.length() * 4, y);
+    ofSetDrawBitmapMode(OF_BITMAPMODE_SIMPLE);
+    ofDrawBitmapStringHighlight(str, x - str.length() * 4, y);
 }
 
 //--------------------------------------------------------------
@@ -84,23 +105,36 @@ void ofApp::draw(){
     
     // Sun
     ofSetColor(255);
-    ofDrawSphere(6);
+    ofDrawSphere(20);
     
+    // Planets
     for ( int i = 0; i < planets.size(); i++) {
         planets[i].drawTrail(ofFloatColor(.5));
         planets[i].drawSphere(ofFloatColor(.9));
     }
     
+    // Moon
     moon.drawTrail(ofFloatColor(.8, 0., 0.));
     moon.drawSphere(ofFloatColor(1., 0., 0.));
+    
+    // Hud
+    ofSetColor(255);
+    for ( int i = 0; i < lines.size(); i++ ) {
+        ofDrawLine(lines[i].A, lines[i].B);
+        
+        if (lines[i].text != "") {
+            ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
+            ofDrawBitmapString(lines[i].text, lines[i].T);
+        }
+    }
     
     ofPopMatrix();
     cam.end();
     ofDisableDepthTest();
     
-//    cout << ofToString( planets[2].m_helioC.length() ) << endl;
+   
     
-    std::string date = getDateString(obs);
+    std::string date = ofToString(year) + "/" + ofToString(month,2,'0') + "/" + ofToString(int(day),2,'0');
     drawBillboard(date, ofGetWidth()*.5, ofGetHeight()-30);
     
     syphon.publishScreen();
