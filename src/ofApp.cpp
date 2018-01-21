@@ -29,22 +29,6 @@ void ofApp::setup(){
         planets.push_back(ofxBody(planets_names[i], planets_sizes[i] * 10.));
     }
     
-    billboard.setMode(OF_PRIMITIVE_TRIANGLE_FAN);
-    billboard.addVertex(ofPoint(-1.,-1));
-    billboard.addTexCoord(ofVec2f(0.,1.));
-    billboard.addColor(ofFloatColor(1.));
-    billboard.addVertex(ofPoint(-1.,1));
-    billboard.addTexCoord(ofVec2f(0.,0.));
-    billboard.addColor(ofFloatColor(1.));
-    billboard.addVertex(ofPoint(1.,1));
-    billboard.addTexCoord(ofVec2f(1.,0.));
-    billboard.addColor(ofFloatColor(1.));
-    billboard.addVertex(ofPoint(1.,-1));
-    billboard.addTexCoord(ofVec2f(1.,1.));
-    billboard.addColor(ofFloatColor(1.));
-    
-    shader_moon.load("shaders/moon.vert","shaders/moon.frag");
-    
     ofSetBackgroundColor(0);
     cam.setDistance(20);
     cam.setPosition(0, 0, 100);
@@ -80,13 +64,6 @@ void ofApp::update(){
     luna.compute(obs);
     moon.compute(obs);
     moon.m_helioC = ( moon.getGeoPosition() * 20*scale ) + ( planets[2].getHelioPosition() * scale);
-    
-    float moon_phase = luna.getAge()/Luna::SYNODIC_MONTH;
-    int moon_curPhase = moon_phase * 8;
-    if (moon_curPhase != moon_prevPhase) {
-        moons.push_back(ofxMoon(planets[2].m_helioC.getNormalized() * 110., moon_phase));
-        moon_prevPhase = moon_curPhase;
-    }
     
     // HUD
     // --------------------------------
@@ -161,12 +138,6 @@ void ofApp::draw(){
             ofDrawBitmapString(lines[i].text, lines[i].T);
         }
     }
-
-    shader_moon.begin();
-    for ( int i = 0; i < moons.size(); i++ ) {
-        moons[i].draw(billboard, shader_moon, 2.);
-    }
-    shader_moon.end();
     
     ofPopMatrix();
     cam.end();

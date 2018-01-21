@@ -10,7 +10,6 @@
 #include "Astro/src/Observer.h"
 #include "Astro/src/Luna.h"
 #include "ofxBody.h"
-#include "ofxMoon.h"
 
 #define TIME_ANIMATION
 
@@ -49,14 +48,10 @@ public:
     Body        sun;
     Luna        luna;
     ofxBody     moon;
-    int         moon_prevPhase;
-    vector<ofxMoon> moons;
     vector<ofxBody> planets;
     
     // HUD
     vector<Line> lines;
-    ofVboMesh   billboard;
-    ofShader    shader_moon;
     
     double      scale;
     

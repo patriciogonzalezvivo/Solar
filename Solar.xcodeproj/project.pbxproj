@@ -98,8 +98,6 @@
 		87DCA636BDFFA23E67DBEE96 /* Observer.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = Observer.cpp; path = src/Astro/src/Observer.cpp; sourceTree = SOURCE_ROOT; };
 		8D08F5D837471CA49AD8EC84 /* EqPoint.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = EqPoint.h; path = src/Astro/src/EqPoint.h; sourceTree = SOURCE_ROOT; };
 		97223D6394C32D02E0B04AB0 /* GeoIPCity.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 30; name = GeoIPCity.c; path = src/GeoLoc/src/GeoIPCity.c; sourceTree = SOURCE_ROOT; };
-		99C5E53C20149201008EE8F0 /* ofxMoon.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ofxMoon.h; sourceTree = "<group>"; };
-		99C5E5412014CD6C008EE8F0 /* shaders */ = {isa = PBXFileReference; lastKnownFileType = folder; name = shaders; path = bin/data/shaders; sourceTree = SOURCE_ROOT; };
 		A3F6A8D257CB170EB4C9545B /* Vsop.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = Vsop.h; path = src/Astro/src/Vsop.h; sourceTree = SOURCE_ROOT; };
 		A55BCC2A9476BD762BDAAF16 /* Constellation.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = Constellation.cpp; path = src/Astro/src/Constellation.cpp; sourceTree = SOURCE_ROOT; };
 		A9D88705CA93237B89074D39 /* EqPoint.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = EqPoint.cpp; path = src/Astro/src/EqPoint.cpp; sourceTree = SOURCE_ROOT; };
@@ -309,10 +307,8 @@
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
 				E4B69E1F0A3A1BDC003C02F2 /* ofApp.h */,
 				E4B69E1E0A3A1BDC003C02F2 /* ofApp.cpp */,
-				99C5E53C20149201008EE8F0 /* ofxMoon.h */,
 				F9492DB957324DCFFBA90243 /* ofxBody.h */,
 				CDD2F3877CC7A8946674BE9B /* ofxBody.cpp */,
-				99C5E5412014CD6C008EE8F0 /* shaders */,
 				DFBD7602252E3C5475B1AC44 /* GeoLoc */,
 				5692D35F95919D557ACFF62F /* Astro */,
 			);
