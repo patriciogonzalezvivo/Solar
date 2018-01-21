@@ -20,16 +20,34 @@ void ofApp::setup(){
     scale = 100.;
 
     BodyId planets_names[] = { MERCURY, VENUS, EARTH, MARS, JUPITER, SATURN, URANUS, NEPTUNE, PLUTO, LUNA };
-    float planets_sizes[] = { 0.0561, 0.1377, 0.17, 0.255, 1.87, 1.615, 0.68, 0.68, 0.0306, 0.0459 };
+    float planets_sizes[] = { 0.0561, 0.1377, 0.17, 0.255, 1.87*.5, 1.615*.5, 0.68, 0.68, 0.0306, 0.0459 };
     
     sun = Body(SUN);
+    luna = Luna();
     moon = ofxBody(LUNA, 0.5);
     for (int i = 0; i < 9; i++) {
         planets.push_back(ofxBody(planets_names[i], planets_sizes[i] * 10.));
     }
     
+    billboard.setMode(OF_PRIMITIVE_TRIANGLE_FAN);
+    billboard.addVertex(ofPoint(-1.,-1));
+    billboard.addTexCoord(ofVec2f(0.,1.));
+    billboard.addColor(ofFloatColor(1.));
+    billboard.addVertex(ofPoint(-1.,1));
+    billboard.addTexCoord(ofVec2f(0.,0.));
+    billboard.addColor(ofFloatColor(1.));
+    billboard.addVertex(ofPoint(1.,1));
+    billboard.addTexCoord(ofVec2f(1.,0.));
+    billboard.addColor(ofFloatColor(1.));
+    billboard.addVertex(ofPoint(1.,-1));
+    billboard.addTexCoord(ofVec2f(1.,1.));
+    billboard.addColor(ofFloatColor(1.));
+    
+    shader_moon.load("shaders/moon.vert","shaders/moon.frag");
+    
     ofSetBackgroundColor(0);
     cam.setDistance(20);
+    cam.setPosition(0, 0, 100);
     
     syphon.setName("Solar");
 }
@@ -59,12 +77,19 @@ void ofApp::update(){
     }
     
     // Update moon position (the distance from the earth is not in scale)
+    luna.compute(obs);
     moon.compute(obs);
     moon.m_helioC = ( moon.getGeoPosition() * 20*scale ) + ( planets[2].getHelioPosition() * scale);
     
+    float moon_phase = luna.getAge()/Luna::SYNODIC_MONTH;
+    int moon_curPhase = moon_phase * 8;
+    if (moon_curPhase != moon_prevPhase) {
+        moons.push_back(ofxMoon(planets[2].m_helioC.getNormalized() * 110., moon_phase));
+        moon_prevPhase = moon_curPhase;
+    }
+    
     // HUD
     // --------------------------------
-    
     if (month != prevMonth && int(day) == 1) {
         ofVec3f toEarth = planets[2].m_helioC;
         Line newLine;
@@ -77,9 +102,17 @@ void ofApp::update(){
         lines.push_back(newLine);
     }
     else if (int(day) != int(prevDay)) {
+        int dow = TimeOps::MJDtoDOW(TimeOps::JDtoMJD(obs.getJulianDate()));
+        
         ofVec3f toEarth = planets[2].m_helioC;
         Line newLine;
-        newLine.A = toEarth.normalize() * 85.;
+
+        if (dow == 0) {
+            newLine.A = toEarth.normalize() * 82.5;
+        }
+        else {
+            newLine.A = toEarth.normalize() * 85.;
+        }
         newLine.B = toEarth.normalize() * 90.;
         lines.push_back(newLine);
     }
@@ -87,7 +120,7 @@ void ofApp::update(){
     prevDay = day;
 }
 
-void drawBillboard(std::string &str, int x , int y) {
+void drawString(std::string &str, int x , int y) {
     ofSetColor(255);
     ofSetDrawBitmapMode(OF_BITMAPMODE_SIMPLE);
     ofDrawBitmapStringHighlight(str, x - str.length() * 4, y);
@@ -96,6 +129,7 @@ void drawBillboard(std::string &str, int x , int y) {
 //--------------------------------------------------------------
 void ofApp::draw(){
     ofEnableDepthTest();
+    ofEnableAlphaBlending();
     
     cam.setTarget(planets[2].m_helioC);
     cam.roll(90);
@@ -105,7 +139,7 @@ void ofApp::draw(){
     
     // Sun
     ofSetColor(255);
-    ofDrawSphere(20);
+    ofDrawSphere(10);
     
     // Planets
     for ( int i = 0; i < planets.size(); i++) {
@@ -127,15 +161,28 @@ void ofApp::draw(){
             ofDrawBitmapString(lines[i].text, lines[i].T);
         }
     }
+
+    shader_moon.begin();
+//    ofSetColor(255);
+//    ofPushMatrix();
+//    ofTranslate(moon.m_helioC.getNormalized() * 110.);
+//    ofScale(5, 5);
+//    shader_moon.setUniform1f("u_synodic_day", luna.getAge()/Luna::SYNODIC_MONTH);
+//    billboard.draw();
+//    ofPopMatrix();
+    
+    for ( int i = 0; i < moons.size(); i++ ) {
+        moons[i].draw(billboard, shader_moon, 1.5);
+    }
+    
+    shader_moon.end();
     
     ofPopMatrix();
     cam.end();
     ofDisableDepthTest();
     
-   
-    
     std::string date = ofToString(year) + "/" + ofToString(month,2,'0') + "/" + ofToString(int(day),2,'0');
-    drawBillboard(date, ofGetWidth()*.5, ofGetHeight()-30);
+    drawString(date, ofGetWidth()*.5, ofGetHeight()-30);
     
     syphon.publishScreen();
 }
