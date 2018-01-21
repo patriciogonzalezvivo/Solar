@@ -163,18 +163,9 @@ void ofApp::draw(){
     }
 
     shader_moon.begin();
-//    ofSetColor(255);
-//    ofPushMatrix();
-//    ofTranslate(moon.m_helioC.getNormalized() * 110.);
-//    ofScale(5, 5);
-//    shader_moon.setUniform1f("u_synodic_day", luna.getAge()/Luna::SYNODIC_MONTH);
-//    billboard.draw();
-//    ofPopMatrix();
-    
     for ( int i = 0; i < moons.size(); i++ ) {
-        moons[i].draw(billboard, shader_moon, 1.5);
+        moons[i].draw(billboard, shader_moon, 2.);
     }
-    
     shader_moon.end();
     
     ofPopMatrix();
