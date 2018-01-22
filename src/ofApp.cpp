@@ -183,8 +183,10 @@ void ofApp::draw(){
     ofSetColor(255,0,0,100);
     // https://forum.openframeworks.cc/t/rotate-3d-object-to-align-to-vector/5085/2
     // http://www.euclideanspace.com/maths/algebra/vectors/angleBetween/index.htm
-    ofRotate(ofRadToDeg(angle), axis.x, axis.y, axis.y);
-    ofRotateX(ofRadToDeg(obs.getObliquity()+HALF_PI));
+//    ofRotate(ofRadToDeg(angle), axis.x, axis.y, axis.y);
+//    ofRotateX(ofRadToDeg(obs.getObliquity()+HALF_PI));
+    ofRotateX(ofRadToDeg(obs.getObliquity()));
+    
     ofDrawCircle(ofPoint(0.,0.,0.), 4.);
     for (int i = 0; i < 90; i ++) {
         ofPoint p;
