@@ -50,8 +50,15 @@ public:
     ofxBody     moon;
     vector<ofxBody> planets;
     
+    // Ecliptical
+    ofPoint toEarth;
+    
+    // Equatorial
+    ofPoint n_pole, v_equi, s_sols;
+    
     // HUD
     vector<Line> lines;
+    std::string date;
     
     double      scale;
     
@@ -59,4 +66,5 @@ public:
     double      day, prevDay;
     int         month, prevMonth;
     int         year;
+    bool        bWriten;
 };
