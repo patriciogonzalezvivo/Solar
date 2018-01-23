@@ -7,6 +7,8 @@
 
 #include "ofxBody.h"
 
+const std::string body_names[] = { "Sun", "Mer", "Ven", "Earth", "Mar", "Jup", "Sat", "Ur", "Nep", "Pl", "Moon" };
+
 ofxBody::ofxBody() {
     m_bodyId = NAB;
 }
@@ -40,4 +42,12 @@ void ofxBody::drawTrail(ofFloatColor _color) {
 void ofxBody::drawSphere(ofFloatColor _color) {
     ofSetColor(_color);
     ofDrawSphere(m_helioC, m_size);
+    
+    if (m_bodyId != EARTH &&
+        m_bodyId != LUNA &&
+        m_bodyId != SUN) {
+        ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
+        ofDrawBitmapString(body_names[m_bodyId], m_helioC + ofPoint(m_size*2. + 1.5));
+    }
+    
 }

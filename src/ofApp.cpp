@@ -49,7 +49,7 @@ void ofApp::update(){
     obs.setJuliaDay(initial_jd + ofGetElapsedTimef() * 7.);
 #endif
     TimeOps::JDtoMDY(obs.getJulianDate(), month, day, year);
-    date = ofToString(year) + "/" + ofToString(month,2,'0') + "/" + ofToString(int(day),2,'0');
+    date = ofToString(month,2,'0') + "/" + ofToString(int(day),2,'0');
     
     // BODIES
     // --------------------------------
@@ -85,7 +85,7 @@ void ofApp::update(){
         newLine.B = toEarth * 90.;
 
         newLine.text = "Equinox " + date;
-        newLine.T = toEarth * 104.;
+        newLine.T = toEarth * 104. + ofPoint(0.,0.,2);
 
         lines.push_back(newLine);
         bWriten = true;
@@ -96,7 +96,7 @@ void ofApp::update(){
         newLine.B = toEarth * 90.;
         
         newLine.text = "Solstice " + date;
-        newLine.T = toEarth * 104.;
+        newLine.T = toEarth * 104. + ofPoint(0.,0.,2);
         
         lines.push_back(newLine);
         bWriten = true;
@@ -136,7 +136,7 @@ void ofApp::update(){
     prevDay = day;
 }
 
-void drawString(std::string &str, int x , int y) {
+void drawString(std::string str, int x , int y) {
     ofSetColor(255);
     ofSetDrawBitmapMode(OF_BITMAPMODE_SIMPLE);
     ofDrawBitmapStringHighlight(str, x - str.length() * 4, y);
@@ -168,13 +168,12 @@ void ofApp::draw(){
     ofTranslate(planets[2].m_helioC);
     ofDrawLine(n_pole * 4.,n_pole * -4.);
     ofDrawLine(v_equi * -4.,v_equi * 4.);
-    
-//    ofDrawLine(y * 4.,y * -4.);
+    ofDrawLine(s_sols * 4.,s_sols * -4.);
     
     ofSetColor(255);
     ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
-    ofDrawBitmapString("N", n_pole * 5.);
-    ofDrawBitmapString("Vernal Equinox", v_equi * 5);
+    ofDrawBitmapString("N", n_pole * 5.5);
+    ofDrawBitmapString("Eq", v_equi * 5.5);
     
     ofPoint axis = s_sols.cross( n_pole ).normalize();
     float angle = acos(s_sols.dot( n_pole ));
@@ -221,7 +220,7 @@ void ofApp::draw(){
     cam.end();
     ofDisableDepthTest();
     
-    drawString(date, ofGetWidth()*.5, ofGetHeight()-30);
+    drawString(ofToString(year) + "/" + date, ofGetWidth()*.5, ofGetHeight()-30);
     
     syphon.publishScreen();
 }
