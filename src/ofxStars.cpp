@@ -84,7 +84,7 @@ void ofxStars::drawStars (ofCamera &_cam) {
     _cam.begin();
     
     m_starsVbo.draw(GL_POINTS, 0, m_starsPos.size()-1);
-//    m_starsMesh.draw();
+    m_starsMesh.draw();
 
     _cam.end();
     m_starsShader.end();

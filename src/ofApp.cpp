@@ -10,6 +10,12 @@ const std::string month_names[] = { "ENE", "FEB", "MAR", "APR", "MAY", "JUN", "J
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+    ofDisableArbTex();
+    ofSetBackgroundColor(0);
+    ofSetCircleResolution(36);
+    
+    cam.setPosition(0, 0, 1000);
+    
     double lng = 0.;
     double lat = 0.;
     geoLoc(lng, lat, ofToDataPath(GEOIP_DB), ofToDataPath(GEOLOC_FILE));
@@ -46,10 +52,6 @@ void ofApp::setup(){
     shader_moon.load("shaders/moon.vert","shaders/moon.frag");
     
     stars.updateEqua(2500.);
-    
-    ofSetBackgroundColor(0);
-    cam.setPosition(0, 0, 1000);
-    ofSetCircleResolution(36);
     
     syphon.setName("Solar");
     

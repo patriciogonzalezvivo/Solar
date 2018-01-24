@@ -21,7 +21,7 @@ vec2 sphereCoords(in vec2 _st, in vec3 _norm) {
     return _st;
 }
 
-void main (void) {
+void main () {
     vec2 st = v_texcoord;
     
     vec2 uv = st-.5;

@@ -14,7 +14,6 @@ out vec2 v_texcoord;
 void main() {
     v_texcoord    = texcoord;
     v_color       = vec4(1.);
-    float size    = 2.;
-    gl_PointSize  = size;
+    gl_PointSize  = 10.;
     gl_Position   = modelViewProjectionMatrix * position;
 }
