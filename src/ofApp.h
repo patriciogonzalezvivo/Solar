@@ -10,6 +10,8 @@
 #include "Astro/src/Observer.h"
 #include "Astro/src/Luna.h"
 #include "ofxBody.h"
+#include "ofxMoon.h"
+#include "ofxStars.h"
 
 #define TIME_ANIMATION
 
@@ -48,23 +50,32 @@ public:
     Body        sun;
     Luna        luna;
     ofxBody     moon;
+    int         moon_prevPhase;
+    vector<ofxMoon> moons;
     vector<ofxBody> planets;
     
     // Ecliptical
     ofPoint toEarth;
     
     // Equatorial
-    ofPoint n_pole, v_equi, s_sols;
+    ofPoint     n_pole;
+    ofPoint     v_equi;
+    ofPoint     s_sols;
+    
+    // Stars
+    ofxStars    stars;
     
     // HUD
     vector<Line> lines;
-    std::string date;
+    ofVboMesh   billboard;
+    ofShader    shader_moon;
     
     double      scale;
     
     // Time
+    std::string date, oneYearIn;
     double      day, prevDay;
     int         month, prevMonth;
-    int         year;
+    int         year, prevYear;
     bool        bWriten;
 };

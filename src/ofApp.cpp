@@ -29,6 +29,24 @@ void ofApp::setup(){
         planets.push_back(ofxBody(planets_names[i], planets_sizes[i] * 10.));
     }
     
+    billboard.setMode(OF_PRIMITIVE_TRIANGLE_FAN);
+    billboard.addVertex(ofPoint(-1.,-1));
+    billboard.addTexCoord(ofVec2f(0.,1.));
+    billboard.addColor(ofFloatColor(1.));
+    billboard.addVertex(ofPoint(-1.,1));
+    billboard.addTexCoord(ofVec2f(0.,0.));
+    billboard.addColor(ofFloatColor(1.));
+    billboard.addVertex(ofPoint(1.,1));
+    billboard.addTexCoord(ofVec2f(1.,0.));
+    billboard.addColor(ofFloatColor(1.));
+    billboard.addVertex(ofPoint(1.,-1));
+    billboard.addTexCoord(ofVec2f(1.,1.));
+    billboard.addColor(ofFloatColor(1.));
+    
+    shader_moon.load("shaders/moon.vert","shaders/moon.frag");
+    
+    stars.updateEqua(2500.);
+    
     ofSetBackgroundColor(0);
     cam.setPosition(0, 0, 1000);
     ofSetCircleResolution(36);
@@ -49,9 +67,9 @@ void ofApp::update(){
     obs.setJuliaDay(initial_jd + ofGetElapsedTimef() * 7.);
 #endif
     TimeOps::JDtoMDY(obs.getJulianDate(), month, day, year);
-    date = ofToString(month,2,'0') + "/" + ofToString(int(day),2,'0');
+    date = ofToString(year) + "/" + ofToString(month,2,'0') + "/" + ofToString(int(day),2,'0');
     
-    // BODIES
+    // Updating BODIES positions
     // --------------------------------
     
     // Update sun position
@@ -68,9 +86,14 @@ void ofApp::update(){
     moon.compute(obs);
     moon.m_helioC = ( moon.getGeoPosition() * 20*scale ) + ( planets[2].getHelioPosition() * scale);
     
-    Vector z = AstroOps::eclipticToEquatorial(obs, Vector(0,HALF_PI,1));
-    Vector y = AstroOps::eclipticToEquatorial(obs, Vector(0,0,1));
-    Vector x = AstroOps::eclipticToEquatorial(obs, Vector(HALF_PI,0,1));
+    
+    // HUDS ELEMENTS
+    // --------------------------------
+    
+    // Equatorial North, Vernal Equinox and Summer Solstice
+    Vector z = AstroOps::eclipticToEquatorial(obs, Vector(0,HALF_PI,1)).getEquatorialVector();
+    Vector y = AstroOps::eclipticToEquatorial(obs, Vector(0,0,1)).getEquatorialVector();
+    Vector x = AstroOps::eclipticToEquatorial(obs, Vector(HALF_PI,0,1)).getEquatorialVector();
     
     n_pole = ofPoint(z.x, z.y, z.z).normalize();
     v_equi = ofPoint(y.x, y.y, y.z).normalize();
@@ -79,12 +102,25 @@ void ofApp::update(){
     toEarth = planets[2].m_helioC;
     toEarth.normalize();
     
+    // HUD EVENTS
+    // --------------------------------
+    
+    
+    // Moon phases
+    float moon_phase = luna.getAge()/Luna::SYNODIC_MONTH;
+    int moon_curPhase = moon_phase * 8;
+    if (moon_curPhase != moon_prevPhase) {
+        moons.push_back(ofxMoon(planets[2].m_helioC.getNormalized() * 110., moon_phase));
+        moon_prevPhase = moon_curPhase;
+    }
+    
+    // Equinoxes & Solstices
     if (abs(toEarth.dot(v_equi)) > .999999 && !bWriten) {
         Line newLine;
         newLine.A = planets[2].m_helioC;
         newLine.B = toEarth * 90.;
 
-        newLine.text = "Equinox " + date;
+        newLine.text = "Eq. " + ofToString(int(day),2,'0');
         newLine.T = toEarth * 104. + ofPoint(0.,0.,2);
 
         lines.push_back(newLine);
@@ -95,7 +131,7 @@ void ofApp::update(){
         newLine.A = planets[2].m_helioC;
         newLine.B = toEarth * 90.;
         
-        newLine.text = "Solstice " + date;
+        newLine.text = "So. " + ofToString(int(day),2,'0');
         newLine.T = toEarth * 104. + ofPoint(0.,0.,2);
         
         lines.push_back(newLine);
@@ -105,9 +141,17 @@ void ofApp::update(){
         bWriten = false;
     }
     
-    // HUD
-    // --------------------------------
-    if (month != prevMonth && int(day) == 1) {
+    // Year's cycles, Months & Days
+    if (oneYearIn == "" ) {
+        oneYearIn = ofToString(year+1) + "/" + ofToString(month,2,'0') + "/" + ofToString(int(day),2,'0');
+        cout << "One year in day " << oneYearIn << endl;
+    }
+    else if (oneYearIn == date) {
+        oneYearIn = "";
+        moons.clear();
+        lines.clear();
+    }
+    else if (month != prevMonth && int(day) == 1) {
         
         Line newLine;
         newLine.A = toEarth * 80.;
@@ -132,6 +176,8 @@ void ofApp::update(){
         newLine.B = toEarth.normalize() * 90.;
         lines.push_back(newLine);
     }
+    
+    prevYear = year;
     prevMonth = month;
     prevDay = day;
 }
@@ -144,46 +190,53 @@ void drawString(std::string str, int x , int y) {
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    ofEnableDepthTest();
-    ofEnableAlphaBlending();
     
+    // Set Camera
     cam.setTarget(planets[2].m_helioC);
     cam.roll(90);
     
+    // Draw Stars
+    ofFill();
+    ofSetColor(255);
+    stars.drawStars(cam);
+    
+    // Set Scene
     cam.begin();
     ofPushMatrix();
     
-    // Sun
+    // Draw Constellations
+    ofFill();
+    ofSetColor(50);
+    stars.drawConstellations();
+    
+    ofEnableDepthTest();
+    ofEnableAlphaBlending();
+    
+    // Draw Sun
     ofSetColor(255);
     ofDrawSphere(10);
     
-    // Planets
+    // Draw Planets and their orbits
     for ( int i = 0; i < planets.size(); i++) {
         planets[i].drawTrail(ofFloatColor(.5));
         planets[i].drawSphere(ofFloatColor(.9));
     }
     
+    //  Draw Equatorial Coordenate system
     ofPushMatrix();
     ofSetColor(255.,0.,0.);
     ofTranslate(planets[2].m_helioC);
     ofDrawLine(n_pole * 4.,n_pole * -4.);
-    ofDrawLine(v_equi * -4.,v_equi * 4.);
-    ofDrawLine(s_sols * 4.,s_sols * -4.);
+    ofDrawArrow(v_equi, v_equi * 4.2, .1);
+    ofDrawArrow(v_equi, v_equi * -4.2, .1);
+    ofDrawLine(s_sols * -4.,s_sols * 4);
     
     ofSetColor(255);
     ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
     ofDrawBitmapString("N", n_pole * 5.5);
-    ofDrawBitmapString("Eq", v_equi * 5.5);
-    
-    ofPoint axis = s_sols.cross( n_pole ).normalize();
-    float angle = acos(s_sols.dot( n_pole ));
     
     ofNoFill();
     ofSetColor(255,0,0,100);
-    // https://forum.openframeworks.cc/t/rotate-3d-object-to-align-to-vector/5085/2
-    // http://www.euclideanspace.com/maths/algebra/vectors/angleBetween/index.htm
-//    ofRotate(ofRadToDeg(angle), axis.x, axis.y, axis.y);
-//    ofRotateX(ofRadToDeg(obs.getObliquity()+HALF_PI));
     ofRotateX(ofRadToDeg(obs.getObliquity()));
     
     ofDrawCircle(ofPoint(0.,0.,0.), 4.);
@@ -195,17 +248,26 @@ void ofApp::draw(){
         ofDrawLine(p*4.,p*3);
     }
     ofPopMatrix();
-    
+
+    // Draw Earth-Sun Vector
+    ofFill();
     ofSetColor(255);
-    
-    ofDrawLine(toEarth*100., toEarth*90.);
+//    ofDrawLine(toEarth*100., toEarth*90.);
+    ofDrawArrow(toEarth*90., toEarth*95., .2);
     
     // Moon
     ofFill();
     moon.drawTrail(ofFloatColor(.4));
     moon.drawSphere(ofFloatColor(0.6));
     
-    // Hud
+    // Moon Phases
+    shader_moon.begin();
+    for ( int i = 0; i < moons.size(); i++ ) {
+        moons[i].draw(billboard, shader_moon, 2.);
+    }
+    shader_moon.end();
+    
+    // Draw Hud elements
     ofSetColor(255);
     for ( int i = 0; i < lines.size(); i++ ) {
         ofDrawLine(lines[i].A, lines[i].B);
@@ -217,11 +279,14 @@ void ofApp::draw(){
     }
     
     ofPopMatrix();
-    cam.end();
     ofDisableDepthTest();
+    ofDisableAlphaBlending();
+    cam.end();
     
-    drawString(ofToString(year) + "/" + date, ofGetWidth()*.5, ofGetHeight()-30);
+    // Draw Date
+    drawString(date, ofGetWidth()*.5, ofGetHeight()-30);
     
+    // Share screen through Syphon
     syphon.publishScreen();
 }
 
