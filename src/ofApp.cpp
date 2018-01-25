@@ -200,27 +200,33 @@ void ofApp::draw(){
     cam.setTarget(planets[2].m_helioC);
     cam.roll(90);
     
+    ofEnableDepthTest();
+    ofEnableAlphaBlending();
+    
     // Set Scene
     cam.begin();
     ofPushMatrix();
     
-    ofEnableDepthTest();
-    ofEnableAlphaBlending();
+    // ECLIPTIC HELIOCENTRIC COORD SYSTEM
+    // --------------------------------------- begin Ec Helio
 
     // Draw Sun
     ofSetColor(255);
     ofDrawSphere(10);
     
-    // Draw Planets and their orbits
+    // Draw Planets and their orbits (HelioCentric)
     for ( int i = 0; i < planets.size(); i++) {
         planets[i].drawTrail(ofFloatColor(.5));
         planets[i].drawSphere(ofFloatColor(.9));
     }
     
-    //  Draw Equatorial Coordenate system
     ofPushMatrix();
-    ofSetColor(255.,0.,0.);
+    
+    // ECLIPTIC GEOCENTRIC COORD SYSTEM
+    // --------------------------------------- begin Ec Geo
     ofTranslate(planets[2].m_helioC);
+    
+    ofSetColor(255.,0.,0.);
     ofDrawLine(n_pole * 4.,n_pole * -4.);
     ofDrawArrow(v_equi, v_equi * 4.2, .1);
     ofDrawArrow(v_equi, v_equi * -4.2, .1);
@@ -230,11 +236,26 @@ void ofApp::draw(){
     ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
     ofDrawBitmapString("N", n_pole * 5.5);
     
+//    // Check that Geocentric Vector to planets match
+//    ofSetColor(100,100);
+//    for ( int i = 0; i < planets.size(); i++) {
+//        if (planets[i].getBodyId() != EARTH ) {
+//            Vector geo = planets[i].getGeocentricVector() * scale;
+//            ofPoint toPlanet = ofPoint(geo.x, geo.y, geo.z);
+//            ofDrawLine(ofPoint(0.), toPlanet);
+//        }
+//    }
+    
+    ofPushMatrix();
+    // EQUATORIAL COORD SYSTEM
+    // --------------------------------------- begin Eq
+    ofRotateX(ofRadToDeg(-obs.getObliquity()));
+    
     ofNoFill();
     ofSetColor(255,0,0,100);
-    ofRotateX(ofRadToDeg(obs.getObliquity()));
-    
     ofDrawCircle(ofPoint(0.,0.,0.), 4.);
+    
+    // Disk
     for (int i = 0; i < 90; i ++) {
         ofPoint p;
         float a = ofDegToRad(i*4);
@@ -243,8 +264,23 @@ void ofApp::draw(){
         ofDrawLine(p*4.,p*3);
     }
     
+    // Check that Equatorial Vector to planets match
+    ofSetColor(255,0,0,50);
+    for ( int i = 0; i < planets.size(); i++) {
+        if (planets[i].getBodyId() != EARTH ) {
+            Vector eq = planets[i].EqPoint::getEquatorialVector();
+            eq *= planets[i].getRadius() * scale;
+            ofPoint toPlanet = ofPoint(eq.x, eq.y, eq.z);
+            ofDrawLine(ofPoint(0.), toPlanet);
+        }
+    }
+    
+    // --------------------------------------- end Eq
     ofPopMatrix();
-
+    
+    // --------------------------------------- end Ec Geo
+    ofPopMatrix();
+    
     // Draw Earth-Sun Vector
     ofFill();
     ofSetColor(255);
@@ -274,10 +310,12 @@ void ofApp::draw(){
         }
     }
     
+    // --------------------------------------- end Ec Helio
+    ofPopMatrix();
+    
+    cam.end();
     ofDisableDepthTest();
     ofDisableAlphaBlending();
-    ofPopMatrix();
-    cam.end();
     
     // Draw Date
     drawString(date, ofGetWidth()*.5, ofGetHeight()-30);
