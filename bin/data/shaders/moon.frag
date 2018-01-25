@@ -22,8 +22,8 @@ vec2 sphereCoords(in vec2 _st, in vec3 _norm) {
 }
 
 void main () {
+    vec4 color = vec4(1.);
     vec2 st = v_texcoord;
-    
     vec2 uv = st-.5;
     
     // LIGHT
@@ -40,7 +40,7 @@ void main () {
     float alpha = 1.-smoothstep(0.492,0.5, dot(st-.5,st-.5)*2.1);
     alpha = clamp(alpha,0.,1.);
     
-    vec4 color = vec4(1.);
+    
     color.rgb = mix(vec3(.1), vec3(1.), diffuse);
     color.a = alpha;
     

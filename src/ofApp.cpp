@@ -8,6 +8,11 @@ double initial_jd;
 
 const std::string month_names[] = { "ENE", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC" };
 
+ofPoint coord2EquatorialSphere(Star &_star, float _distance) {
+    Vector eclip = _star.getEquatorialVector() * _distance;
+    return ofPoint(eclip.x, eclip.y, eclip.z);
+}
+
 //--------------------------------------------------------------
 void ofApp::setup(){
     ofDisableArbTex();
@@ -51,8 +56,6 @@ void ofApp::setup(){
     
     shader_moon.load("shaders/moon.vert","shaders/moon.frag");
     
-    stars.updateEqua(2500.);
-    
     syphon.setName("Solar");
     
     bWriten = false;
@@ -93,9 +96,9 @@ void ofApp::update(){
     // --------------------------------
     
     // Equatorial North, Vernal Equinox and Summer Solstice
-    Vector z = AstroOps::eclipticToEquatorial(obs, Vector(0,HALF_PI,1)).getEquatorialVector();
-    Vector y = AstroOps::eclipticToEquatorial(obs, Vector(0,0,1)).getEquatorialVector();
-    Vector x = AstroOps::eclipticToEquatorial(obs, Vector(HALF_PI,0,1)).getEquatorialVector();
+    Vector z = AstroOps::eclipticToEquatorial(obs, Vector(0, HALF_PI, 1, true)).getEquatorialVector();
+    Vector y = AstroOps::eclipticToEquatorial(obs, Vector(0, 0 ,1, true)).getEquatorialVector();
+    Vector x = AstroOps::eclipticToEquatorial(obs, Vector(HALF_PI, 0, 1, true)).getEquatorialVector();
     
     n_pole = ofPoint(z.x, z.y, z.z).normalize();
     v_equi = ofPoint(y.x, y.y, y.z).normalize();
@@ -197,23 +200,13 @@ void ofApp::draw(){
     cam.setTarget(planets[2].m_helioC);
     cam.roll(90);
     
-    // Draw Stars
-    ofFill();
-    ofSetColor(255);
-    stars.drawStars(cam);
-    
     // Set Scene
     cam.begin();
     ofPushMatrix();
     
-    // Draw Constellations
-    ofFill();
-    ofSetColor(50);
-    stars.drawConstellations();
-    
     ofEnableDepthTest();
     ofEnableAlphaBlending();
-    
+
     // Draw Sun
     ofSetColor(255);
     ofDrawSphere(10);
@@ -249,6 +242,7 @@ void ofApp::draw(){
         p.y = sin(a);
         ofDrawLine(p*4.,p*3);
     }
+    
     ofPopMatrix();
 
     // Draw Earth-Sun Vector
@@ -280,9 +274,9 @@ void ofApp::draw(){
         }
     }
     
-    ofPopMatrix();
     ofDisableDepthTest();
     ofDisableAlphaBlending();
+    ofPopMatrix();
     cam.end();
     
     // Draw Date

@@ -9,9 +9,11 @@
 
 #include "Astro/src/Observer.h"
 #include "Astro/src/Luna.h"
+#include "Astro/src/Star.h"
+#include "Astro/src/Constellation.h"
+
 #include "ofxBody.h"
 #include "ofxMoon.h"
-#include "ofxStars.h"
 
 #define TIME_ANIMATION
 
@@ -61,10 +63,7 @@ public:
     ofPoint     n_pole;
     ofPoint     v_equi;
     ofPoint     s_sols;
-    
-    // Stars
-    ofxStars    stars;
-    
+
     // HUD
     vector<Line> lines;
     ofVboMesh   billboard;
