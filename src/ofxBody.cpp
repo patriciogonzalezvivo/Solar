@@ -18,12 +18,12 @@ ofxBody::ofxBody(BodyId _planet, float _size) {
     m_size = _size;
 }
 
-ofVec3f ofxBody::getGeoPosition() {
+ofPoint ofxBody::getGeoPosition() {
     Vector gPos = getGeocentricVector();
     return ofPoint(gPos.x, gPos.y, gPos.z);
 }
 
-ofVec3f ofxBody::getHelioPosition() {
+ofPoint ofxBody::getHelioPosition() {
     Vector hPos = getHeliocentricVector();
     return ofPoint(hPos.x, hPos.y, hPos.z);
 }
@@ -43,10 +43,10 @@ void ofxBody::drawSphere(ofFloatColor _color) {
     ofSetColor(_color);
     ofDrawSphere(m_helioC, m_size);
     
-//    if (m_bodyId != EARTH &&
-//        m_bodyId != LUNA &&
-//        m_bodyId != SUN) {
-//        ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
-//        ofDrawBitmapString(body_names[m_bodyId], m_helioC + ofPoint(m_size*2. + 1.5));
-//    }
+    if (m_bodyId != EARTH &&
+        m_bodyId != LUNA &&
+        m_bodyId != SUN) {
+        ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
+        ofDrawBitmapString(body_names[m_bodyId], m_helioC + ofPoint(m_size*2. + 1.5));
+    }
 }

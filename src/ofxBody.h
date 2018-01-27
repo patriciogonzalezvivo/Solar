@@ -18,8 +18,8 @@ public:
     void drawTrail(ofFloatColor _color);
     void drawSphere(ofFloatColor _color);
     
-    ofVec3f getGeoPosition();
-    ofVec3f getHelioPosition();
+    ofPoint getGeoPosition();
+    ofPoint getHelioPosition();
     
     ofPoint     m_helioC;
     

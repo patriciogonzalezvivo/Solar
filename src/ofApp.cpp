@@ -69,7 +69,7 @@ void ofApp::update(){
 #ifndef TIME_ANIMATION
     obs.setTime();
 #else
-    obs.setJuliaDay(initial_jd + ofGetElapsedTimef() * 7.);
+    obs.setJuliaDay(initial_jd + ofGetElapsedTimef() * 4.);
 #endif
     TimeOps::JDtoMDY(obs.getJulianDate(), month, day, year);
     date = ofToString(year) + "/" + ofToString(month,2,'0') + "/" + ofToString(int(day),2,'0');
@@ -109,7 +109,6 @@ void ofApp::update(){
     
     // HUD EVENTS
     // --------------------------------
-    
     
     // Moon phases
     float moon_phase = luna.getAge()/Luna::SYNODIC_MONTH;
@@ -218,7 +217,22 @@ void ofApp::draw(){
     for ( int i = 0; i < planets.size(); i++) {
         planets[i].drawTrail(ofFloatColor(.5));
         planets[i].drawSphere(ofFloatColor(.9));
+        
+        if (planets[i].getBodyId() != EARTH ) {
+            ofSetColor(120, 100);
+            ofDrawLine(ofPoint(0.), planets[i].m_helioC);
+        }
     }
+    
+    //    // Check that Geocentric Vector to planets match
+    //    ofSetColor(100,100);
+    //    for ( int i = 0; i < planets.size(); i++) {
+    //        if (planets[i].getBodyId() != EARTH ) {
+    //            Vector geo = planets[i].getGeocentricVector() * scale;
+    //            ofPoint toPlanet = ofPoint(geo.x, geo.y, geo.z);
+    //            ofDrawLine(ofPoint(0.), toPlanet);
+    //        }
+    //    }
     
     ofPushMatrix();
     
@@ -247,12 +261,13 @@ void ofApp::draw(){
 //    }
     
     ofPushMatrix();
+    
     // EQUATORIAL COORD SYSTEM
     // --------------------------------------- begin Eq
     ofRotateX(ofRadToDeg(-obs.getObliquity()));
     
     ofNoFill();
-    ofSetColor(255,0,0,100);
+    ofSetColor(255,0,0,120);
     ofDrawCircle(ofPoint(0.,0.,0.), 4.);
     
     // Disk
@@ -265,7 +280,7 @@ void ofApp::draw(){
     }
     
     // Check that Equatorial Vector to planets match
-    ofSetColor(255,0,0,50);
+    ofSetColor(255,0,0,80);
     for ( int i = 0; i < planets.size(); i++) {
         if (planets[i].getBodyId() != EARTH ) {
             Vector eq = planets[i].EqPoint::getEquatorialVector();
