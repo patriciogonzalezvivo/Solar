@@ -15,7 +15,8 @@
 #include "ofxBody.h"
 #include "ofxMoon.h"
 
-#define TIME_ANIMATION
+#define TIME_ANIMATION 4.0
+//#define MOON_PHASES
 
 struct Line {
     ofPoint A;
@@ -45,36 +46,49 @@ public:
     ofxSyphonServer syphon;
     
     // Observers
-    Observer    obs;
-    ofEasyCam   cam;
+    Observer        obs;
+    ofEasyCam       cam;
+    double          lng;
+    double          lat;
+    double          scale;
     
-    // Bodies
+    // BODIES
+    // -----------------------
     Body        sun;
-    Luna        luna;
-    ofxBody     moon;
-    int         moon_prevPhase;
-    vector<ofxMoon> moons;
     vector<ofxBody> planets;
     
+    // MOON
+    // -----------------------
+    ofxBody         moon;
+#ifdef MOON_PHASES
+    ofShader        moon_shader;
+    int             moon_prevPhase;
+    vector<ofxMoon> moons;
+    Luna            luna;
+#endif
+    
+    // EART
+    // -----------------------
+    ofTexture       earth_texture;
+    ofShader        earth_shader;
+    
     // Ecliptical
-    ofPoint toEarth;
+    ofPoint         toEarth;
     
     // Equatorial
-    ofPoint     n_pole;
-    ofPoint     v_equi;
-    ofPoint     s_sols;
+    ofPoint         n_pole;
+    ofPoint         v_equi;
+    ofPoint         s_sols;
 
     // HUD
-    vector<Line> lines;
-    ofVboMesh   billboard;
-    ofShader    shader_moon;
-    
-    double      scale;
+    // -----------------------
+    vector<Line>    lines;
+    ofVboMesh       billboard;
     
     // Time
-    std::string date, oneYearIn;
-    double      day, prevDay;
-    int         month, prevMonth;
-    int         year, prevYear;
-    bool        bWriten;
+    std::string     date, oneYearIn;
+    double          day, prevDay;
+    int             month, prevMonth;
+    int             year, prevYear;
+    bool            bWriten;
 };
