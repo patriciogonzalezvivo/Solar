@@ -8,9 +8,14 @@ double initial_jd;
 
 const std::string month_names[] = { "ENE", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC" };
 
-ofPoint coord2EquatorialSphere(Star &_star, float _distance) {
-    Vector eclip = _star.getEquatorialVector() * _distance;
-    return ofPoint(eclip.x, eclip.y, eclip.z);
+ofPoint toOf(const Vector &_ve) {
+    return ofPoint(_ve.x, _ve.y, _ve.z);
+}
+
+void drawString(const std::string &str, int x , int y) {
+    ofSetColor(255);
+    ofSetDrawBitmapMode(OF_BITMAPMODE_SIMPLE);
+    ofDrawBitmapStringHighlight(str, x - str.length() * 4, y);
 }
 
 //--------------------------------------------------------------
@@ -20,15 +25,17 @@ void ofApp::setup(){
     ofSetCircleResolution(36);
     
     syphon.setName("Solar");
-    cam.setPosition(0, 0, 1000);
+    cam.setPosition(-71.8425, 80.3674, -4.14539);
     bWriten = false;
     scale = 100.;
     
-    // Earth stuff
-    geoLoc(lng, lat, ofToDataPath(GEOIP_DB), ofToDataPath(GEOLOC_FILE));
-    obs = Observer(lng, lat);
     ofLoadImage(earth_texture, "diffuse.png");
     earth_shader.load("shaders/earth");
+    
+    // Location
+    geoLoc(lng, lat, ofToDataPath(GEOIP_DB), ofToDataPath(GEOLOC_FILE));
+    obs = Observer(lng, lat);
+    loc = ofQuaternion(-lat, ofPoint(1., 0., 0.)) * ofQuaternion(lng-180, ofPoint(0., 1., 0.)) * ofPoint(0.,0.,2.);
     
     // Time
     initial_jd = obs.getJulianDate();
@@ -65,10 +72,6 @@ void ofApp::setup(){
    
 }
 
-ofPoint toOf(const Vector &_ve) {
-    return ofPoint(_ve.x, _ve.y, _ve.z);
-}
-
 //--------------------------------------------------------------
 void ofApp::update(){
 
@@ -82,8 +85,8 @@ void ofApp::update(){
     
     TimeOps::JDtoMDY(obs.getJulianDate(), month, day, year);
     date = ofToString(year) + "/" + ofToString(month,2,'0') + "/" + ofToString(int(day),2,'0');
-    
-    cout << TimeOps::greenwichSiderealTime(obs.getJulianDate()) << endl;
+    TimeOps::toHMS(day, hour, min, sec);
+    time = " " + ofToString(hour,2,'0') + ":" + ofToString(min,2,'0') + ":" + ofToString(int(sec),2,'0');
     
     // Updating BODIES positions
     // --------------------------------
@@ -200,14 +203,6 @@ void ofApp::update(){
     prevDay = day;
 }
 
-void drawString(std::string str, int x , int y) {
-    ofSetColor(255);
-    ofSetDrawBitmapMode(OF_BITMAPMODE_SIMPLE);
-    ofDrawBitmapStringHighlight(str, x - str.length() * 4, y);
-}
-
-
-
 //--------------------------------------------------------------
 void ofApp::draw(){
     
@@ -231,23 +226,17 @@ void ofApp::draw(){
 
     // Draw Planets and their orbits (HelioCentric)
     for ( int i = 0; i < planets.size(); i++) {
+#ifdef BODIES_TRAIL
         planets[i].drawTrail(ofFloatColor(.5));
+#endif
         if (planets[i].getBodyId() != EARTH) {
             planets[i].drawSphere(ofFloatColor(.9));
-//            ofSetColor(120, 100);
-//            ofDrawLine(ofPoint(0.), planets[i].m_helioC);
+#ifdef BODIES_ECLIP_HELIO
+            ofSetColor(120, 100);
+            ofDrawLine(ofPoint(0.), planets[i].m_helioC);
+#endif
         }
     }
-
-    //    // Check that Geocentric Vector to planets match
-    //    ofSetColor(100,100);
-    //    for ( int i = 0; i < planets.size(); i++) {
-    //        if (planets[i].getBodyId() != EARTH ) {
-    //            Vector geo = planets[i].getGeocentricVector() * scale;
-    //            ofPoint toPlanet = ofPoint(geo.x, geo.y, geo.z);
-    //            ofDrawLine(ofPoint(0.), toPlanet);
-    //        }
-    //    }
 
     ofPushMatrix();
 
@@ -267,15 +256,17 @@ void ofApp::draw(){
     ofDrawBitmapString("S", -n_pole * 5.5);
     ofPopMatrix();
 
-//    // Check that Geocentric Vector to planets match
-//    ofSetColor(100,100);
-//    for ( int i = 0; i < planets.size(); i++) {
-//        if (planets[i].getBodyId() != EARTH ) {
-//            Vector geo = planets[i].getGeocentricVector() * scale;
-//            ofPoint toPlanet = ofPoint(geo.x, geo.y, geo.z);
-//            ofDrawLine(ofPoint(0.), toPlanet);
-//        }
-//    }
+#ifdef BODIES_ECLIP_GEO
+    // Check that Geocentric Vector to planets match
+    ofSetColor(100,100);
+    for ( int i = 0; i < planets.size(); i++) {
+        if (planets[i].getBodyId() != EARTH ) {
+            Vector geo = planets[i].getGeocentricVector() * scale;
+            ofPoint toPlanet = ofPoint(geo.x, geo.y, geo.z);
+            ofDrawLine(ofPoint(0.), toPlanet);
+        }
+    }
+#endif
 
     ofPushMatrix();
 
@@ -283,24 +274,28 @@ void ofApp::draw(){
     // --------------------------------------- begin Eq
     ofRotateX(ofRadToDeg(-obs.getObliquity()));
 
-//    // Check that Equatorial Vector to planets match
-//    ofSetColor(255,0,0,100);
-//    for ( int i = 0; i < planets.size(); i++) {
-//        if (planets[i].getBodyId() != EARTH ) {
-//            ofPoint toPlanet = toOf(planets[i].EqPoint::getEquatorialVector());
-//            toPlanet *= planets[i].getRadius() * scale;
-//            ofDrawLine(ofPoint(0.), toPlanet);
-//        }
-//    }
+#ifdef BODIES_EQUAT
+    // Check that Equatorial Vector to planets match
+    ofSetColor(255,0,0,100);
+    for ( int i = 0; i < planets.size(); i++) {
+        if (planets[i].getBodyId() != EARTH ) {
+            ofPoint toPlanet = toOf(planets[i].EqPoint::getEquatorialVector());
+            toPlanet *= planets[i].getRadius() * scale;
+            ofDrawLine(ofPoint(0.), toPlanet);
+        }
+    }
+#endif
     
     ofPushMatrix();
     ofRotateX(-45);
-//    ofRotateY(ofGetElapsedTimef()*10.);
+    // Rotate earth
+    ofRotateY((TimeOps::greenwichSiderealHour(obs.getJulianDate())/24.)*360. + 90);
     
-    ofPoint loc = ofQuaternion(-lat, ofPoint(1., 0., 0.)) * ofQuaternion(lng-180, ofPoint(0., 1., 0.)) * ofPoint(0.,0.,2.);
-    ofSetColor(255, 255, 0);
+    // Location
+    ofSetColor(255);
     ofDrawArrow(ofPoint(0.), loc);
     
+    // Earth
     ofFill();
     ofSetColor(255);
     earth_shader.begin();
@@ -308,6 +303,7 @@ void ofApp::draw(){
     ofDrawSphere(1.7);
     earth_shader.end();
     
+    // Equator
     ofPushMatrix();
     ofRotateX(90);
     ofNoFill();
@@ -335,12 +331,13 @@ void ofApp::draw(){
     // Draw Earth-Sun Vector
     ofFill();
     ofSetColor(255);
-//    ofDrawLine(toEarth*100., toEarth*90.);
     ofDrawArrow(toEarth*90., toEarth*95., .2);
 
     // Moon
     ofFill();
+#ifdef BODIES_TRAIL
     moon.drawTrail(ofFloatColor(.4));
+#endif
     moon.drawSphere(ofFloatColor(0.6));
 
 #ifdef MOON_PHASES
@@ -371,7 +368,8 @@ void ofApp::draw(){
     ofDisableAlphaBlending();
 
     // Draw Date
-    drawString(date, ofGetWidth()*.5, ofGetHeight()-30);
+    drawString(date + " " + time, ofGetWidth()*.5, ofGetHeight()-30);
+    drawString("lng: " + ofToString(lng,2,'0') + "  lat: " + ofToString(lat,2,'0'), ofGetWidth()*.5, ofGetHeight()-10);
 
     // Share screen through Syphon
     syphon.publishScreen();
@@ -379,7 +377,7 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-    cam.setDistance(10);
+    cam.setDistance(20);
 }
 
 //--------------------------------------------------------------

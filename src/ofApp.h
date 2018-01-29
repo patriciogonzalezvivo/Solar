@@ -15,8 +15,14 @@
 #include "ofxBody.h"
 #include "ofxMoon.h"
 
-#define TIME_ANIMATION 4.0
+//#define TIME_ANIMATION 4.0
+#define TIME_ANIMATION .05 - 0.3333
+
 //#define MOON_PHASES
+//#define BODIES_TRAIL
+//#define BODIES_ECLIP_HELIO
+//#define BODIES_ECLIP_GEO
+//#define BODIES_EQUAT
 
 struct Line {
     ofPoint A;
@@ -45,12 +51,26 @@ public:
     
     ofxSyphonServer syphon;
     
-    // Observers
+    // Observer
     Observer        obs;
+    // Place
+    double          lng, lat;
+    ofPoint         loc;
+    // Time
+    std::string     date;
+    std::string     time;
+    double          sec;
+    int             min;
+    int             hour;
+    double          day, prevDay;
+    int             month, prevMonth;
+    int             year, prevYear;
+    std::string     oneYearIn;
+    
+    // Scene
     ofEasyCam       cam;
-    double          lng;
-    double          lat;
     double          scale;
+    bool            bWriten;
     
     // BODIES
     // -----------------------
@@ -84,11 +104,4 @@ public:
     // -----------------------
     vector<Line>    lines;
     ofVboMesh       billboard;
-    
-    // Time
-    std::string     date, oneYearIn;
-    double          day, prevDay;
-    int             month, prevMonth;
-    int             year, prevYear;
-    bool            bWriten;
 };
