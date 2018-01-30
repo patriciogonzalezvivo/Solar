@@ -8,6 +8,15 @@ double initial_jd;
 
 const std::string month_names[] = { "ENE", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC" };
 
+const ofFloatColor palette[] = {
+    ofFloatColor(0.020, 0.051, 0.090),
+    ofFloatColor(0.376, 0.099, 0.082),
+    ofFloatColor(0.918, 0.275, 0.247),
+    ofFloatColor(0.337, 0.780, 0.847),
+    ofFloatColor(0.439, 0.980, 0.988),
+    ofFloatColor(0.996, 1.000, 1.000)
+};
+
 ofPoint toOf(const Vector &_ve) {
     return ofPoint(_ve.x, _ve.y, _ve.z);
 }
@@ -16,6 +25,22 @@ void drawString(const std::string &str, int x , int y) {
     ofSetColor(255);
     ofSetDrawBitmapMode(OF_BITMAPMODE_SIMPLE);
     ofDrawBitmapStringHighlight(str, x - str.length() * 4, y);
+}
+
+void drawDisk(float in_radio, float out_radio, ofFloatColor c) {
+    for (int i = 0; i < 90; i ++) {
+        if ((i*4)%90 == 0) {
+            ofSetColor(c, 255);
+        }
+        else {
+            ofSetColor(c, 200);
+        }
+        ofPoint p;
+        float a = ofDegToRad(i*4-90);
+        p.x = cos(a);
+        p.y = sin(a);
+        ofDrawLine(p*in_radio,p*out_radio);
+    }
 }
 
 //--------------------------------------------------------------
@@ -69,7 +94,7 @@ void ofApp::setup(){
     billboard.addColor(ofFloatColor(1.));
     luna = Luna();
 #endif
-   
+   X = Y = Z = 0;
 }
 
 //--------------------------------------------------------------
@@ -245,7 +270,7 @@ void ofApp::draw(){
     ofTranslate(planets[2].m_helioC);
 
     ofPushMatrix();
-    ofSetColor(255.,0.,0.);
+    ofSetColor(palette[2]);
     ofDrawLine(n_pole * 4.,n_pole * -4.);
     ofDrawLine(v_equi * 4., v_equi * -4);
     ofDrawLine(s_sols * 4.,s_sols * -4);
@@ -261,8 +286,7 @@ void ofApp::draw(){
     ofSetColor(100,100);
     for ( int i = 0; i < planets.size(); i++) {
         if (planets[i].getBodyId() != EARTH ) {
-            Vector geo = planets[i].getGeocentricVector() * scale;
-            ofPoint toPlanet = ofPoint(geo.x, geo.y, geo.z);
+            ofPoint toPlanet = toOf(planets[i].getGeocentricVector()) * scale;
             ofDrawLine(ofPoint(0.), toPlanet);
         }
     }
@@ -276,17 +300,17 @@ void ofApp::draw(){
 
 #ifdef BODIES_EQUAT
     // Check that Equatorial Vector to planets match
-    ofSetColor(255,0,0,100);
+    ofSetColor(palette[1]);
     for ( int i = 0; i < planets.size(); i++) {
         if (planets[i].getBodyId() != EARTH ) {
-            ofPoint toPlanet = toOf(planets[i].EqPoint::getEquatorialVector());
-            toPlanet *= planets[i].getRadius() * scale;
+            ofPoint toPlanet = toOf(planets[i].getEquatorialVector()) * scale;
             ofDrawLine(ofPoint(0.), toPlanet);
         }
     }
 #endif
     
     ofPushMatrix();
+    // -------------------------------------- Hour Angle rotation
     ofRotateX(-45);
     // Rotate earth
     ofRotateY((TimeOps::greenwichSiderealHour(obs.getJulianDate())/24.)*360. + 90);
@@ -307,19 +331,39 @@ void ofApp::draw(){
     ofPushMatrix();
     ofRotateX(90);
     ofNoFill();
-    ofSetColor(255,0,0,120);
+    ofSetColor(255,0,0);
     ofDrawCircle(ofPoint(0.,0.,0.), 4.);
     
     // Disk
-    ofSetColor(255,0,0,120);
-    for (int i = 0; i < 90; i ++) {
-        ofPoint p;
-        float a = ofDegToRad(i*4);
-        p.x = cos(a);
-        p.y = sin(a);
-        ofDrawLine(p*4.,p*3);
-    }
+    drawDisk(3,4, palette[1]);
+
     ofPopMatrix();
+    
+    ofPushMatrix();
+    ofRotateY(lng);
+    ofRotateX(lat);
+    ofTranslate(0., 0., -1.71);
+#ifdef BODIES_HORIZ
+    // Check that Horizontal Vector to planets match
+    ofFill();
+    ofSetColor(255,0,255);
+    drawDisk(.5, .6, palette[3]);
+    ofDrawCircle(ofPoint(0.), .05);
+    
+    ofRotateX(X);
+    ofRotateY(Y);
+    ofRotateZ(Z);
+    ofSetColor(palette[3], 200);
+    for ( int i = 0; i < planets.size(); i++) {
+        if (planets[i].getBodyId() != EARTH ) {
+            ofPoint toPlanet = toOf(planets[i].getHorizontalVector()) * scale;
+            ofDrawLine(ofPoint(0.), toPlanet);
+        }
+    }
+    
+#endif
+    ofPopMatrix();
+    
     ofPopMatrix();
 
     // --------------------------------------- end Eq
@@ -377,7 +421,34 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+    
+    if ( key == 'q' ) {
+        X--;
+        cout << "X: " << X << endl;
+    }
+    else if ( key == 'a' ) {
+        X++;
+        cout << "X: " << X << endl;
+    }
+    else if ( key == 'w' ) {
+        Y--;
+        cout << "Y: " << Y << endl;
+    }
+    else if ( key == 's' ) {
+        Y++;
+        cout << "Y: " << Y << endl;
+    }
+    else if ( key == 'e' ) {
+        Z--;
+        cout << "Z: " << Z << endl;
+    }
+    else if ( key == 'd' ) {
+        Z++;
+        cout << "Z: " << Z << endl;
+    }
+    else {
     cam.setDistance(20);
+    }
 }
 
 //--------------------------------------------------------------
