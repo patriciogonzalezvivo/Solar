@@ -13,7 +13,7 @@ const ofFloatColor palette[] = {
     ofFloatColor(0.376, 0.099, 0.082),
     ofFloatColor(0.918, 0.275, 0.247),
     ofFloatColor(0.337, 0.780, 0.847),
-    ofFloatColor(0.439, 0.980, 0.988),
+    ofFloatColor(0.621, 0.964, 0.988),
     ofFloatColor(0.996, 1.000, 1.000)
 };
 
@@ -94,7 +94,8 @@ void ofApp::setup(){
     billboard.addColor(ofFloatColor(1.));
     luna = Luna();
 #endif
-   X = Y = Z = 0;
+    
+    T = X = Y = Z = 0;
 }
 
 //--------------------------------------------------------------
@@ -105,10 +106,14 @@ void ofApp::update(){
 #ifdef TIME_ANIMATION
     obs.setJuliaDay(initial_jd + ofGetElapsedTimef() * TIME_ANIMATION);
 #else
+#ifdef TIME_MANUAL
+    obs.setJuliaDay(initial_jd + T);
+#else
     obs.setTime();
 #endif
+#endif
     
-    TimeOps::JDtoMDY(obs.getJulianDate(), month, day, year);
+    TimeOps::JDtoMDY(obs.getJulianDate()-0.3333333333, month, day, year);
     date = ofToString(year) + "/" + ofToString(month,2,'0') + "/" + ofToString(int(day),2,'0');
     TimeOps::toHMS(day, hour, min, sec);
     time = " " + ofToString(hour,2,'0') + ":" + ofToString(min,2,'0') + ":" + ofToString(int(sec),2,'0');
@@ -297,7 +302,7 @@ void ofApp::draw(){
     // EQUATORIAL COORD SYSTEM
     // --------------------------------------- begin Eq
     ofRotateX(ofRadToDeg(-obs.getObliquity()));
-
+    
 #ifdef BODIES_EQUAT
     // Check that Equatorial Vector to planets match
     ofSetColor(palette[1]);
@@ -310,10 +315,10 @@ void ofApp::draw(){
 #endif
     
     ofPushMatrix();
-    // -------------------------------------- Hour Angle rotation
+    // -------------------------------------- begin Hour Angle rotation
     ofRotateX(-45);
     // Rotate earth
-    ofRotateY((TimeOps::greenwichSiderealHour(obs.getJulianDate())/24.)*360. + 90);
+    ofRotateY((TimeOps::greenwichSiderealHour(obs.getJulianDate())/24.)*360.);
     
     // Location
     ofSetColor(255);
@@ -336,34 +341,59 @@ void ofApp::draw(){
     
     // Disk
     drawDisk(3,4, palette[1]);
-
     ofPopMatrix();
     
     ofPushMatrix();
+
+    // -------------------------------------- begin Topo
     ofRotateY(lng);
     ofRotateX(lat);
     ofTranslate(0., 0., -1.71);
+    
 #ifdef BODIES_HORIZ
     // Check that Horizontal Vector to planets match
     ofFill();
     ofSetColor(255,0,255);
     drawDisk(.5, .6, palette[3]);
-    ofDrawCircle(ofPoint(0.), .05);
     
-    ofRotateX(X);
-    ofRotateY(Y);
+    ofRotateY(-90);
+    
     ofRotateZ(Z);
-    ofSetColor(palette[3], 200);
+    ofRotateY(Y);
+    ofRotateX(X);
+    
+//    ofDrawRotationAxes(.5, 0.05);
+    
+    ofDrawAxis(3);
+    
+    ofSetColor(palette[3], 250);
+    ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
+    if (sun.getAltitud() > 0) {
+//        Vector v2sun = sun.getHorizontalVector();
+//        ofPoint toSun = ofPoint(v2sun.x,v2sun.y,-v2sun.z) * scale;
+        ofPoint toSun = toOf(sun.getHorizontalVector()) * scale;
+        ofDrawLine(ofPoint(0.), toSun);
+        ofDrawBitmapString(sun.getBodyName(), toSun);
+    }
+    
+    ofSetColor(palette[3], 100);
     for ( int i = 0; i < planets.size(); i++) {
-        if (planets[i].getBodyId() != EARTH ) {
+        if (planets[i].getBodyId() != EARTH &&
+            planets[i].getAltitud() > 0) {
+            
+//            Vector v2p = planets[i].getHorizontalVector();
+//            ofPoint toPlanet = ofPoint(v2p.x, v2p.y, -v2p.z) * scale;
             ofPoint toPlanet = toOf(planets[i].getHorizontalVector()) * scale;
             ofDrawLine(ofPoint(0.), toPlanet);
+            ofDrawBitmapString(planets[i].getBodyName(), toPlanet);
         }
     }
     
 #endif
+    // --------------------------------------- end Topo
     ofPopMatrix();
     
+    // --------------------------------------- end Hour Angle
     ofPopMatrix();
 
     // --------------------------------------- end Eq
@@ -430,12 +460,20 @@ void ofApp::keyPressed(int key){
         X++;
         cout << "X: " << X << endl;
     }
+    else if ( key == 'z' ) {
+        X = 0;
+        cout << "X: " << X << endl;
+    }
     else if ( key == 'w' ) {
         Y--;
         cout << "Y: " << Y << endl;
     }
     else if ( key == 's' ) {
         Y++;
+        cout << "Y: " << Y << endl;
+    }
+    else if ( key == 'x' ) {
+        Y = 0;
         cout << "Y: " << Y << endl;
     }
     else if ( key == 'e' ) {
@@ -446,8 +484,24 @@ void ofApp::keyPressed(int key){
         Z++;
         cout << "Z: " << Z << endl;
     }
+    else if ( key == 'c' ) {
+        Z = 0;
+        cout << "Z: " << Z << endl;
+    }
+    else if ( key == 'r' ) {
+        T -= 0.001;
+        cout << "T: " << T << endl;
+    }
+    else if ( key == 'f' ) {
+        T += 0.001;
+        cout << "T: " << T << endl;
+    }
+    else if ( key == 'v' ) {
+        T = 0;
+        cout << "T: " << T << endl;
+    }
     else {
-    cam.setDistance(20);
+    cam.setDistance(10);
     }
 }
 

@@ -16,7 +16,8 @@
 #include "ofxMoon.h"
 
 //#define TIME_ANIMATION 4.0
-#define TIME_ANIMATION .015 - 0.3333
+//#define TIME_ANIMATION .015 - 0.3333
+#define TIME_MANUAL
 
 //#define MOON_PHASES
 //#define BODIES_TRAIL
@@ -75,7 +76,7 @@ public:
     
     // BODIES
     // -----------------------
-    Body        sun;
+    Body            sun;
     vector<ofxBody> planets;
     
     // MOON
@@ -102,7 +103,7 @@ public:
     ofPoint         s_sols;
     
     // Horizontal
-    float           X,Y,Z;
+    float           X,Y,Z, T;
 
     // HUD
     // -----------------------
