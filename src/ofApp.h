@@ -16,15 +16,20 @@
 #include "ofxMoon.h"
 
 //#define TIME_ANIMATION 4.0
-//#define TIME_ANIMATION .015 - 0.3333
-#define TIME_MANUAL
+#define TIME_ANIMATION .015
+//#define TIME_MANUAL
 
 //#define MOON_PHASES
-//#define BODIES_TRAIL
-//#define BODIES_ECLIP_HELIO
+#define BODIES_TRAIL
+#define BODIES_ECLIP_HELIO
 //#define BODIES_ECLIP_GEO
 #define BODIES_EQUAT
 #define BODIES_HORIZ
+
+#define SUN_HORIZ
+#define MOON_HORIZ
+
+//#define DEBUG_AXIS
 
 struct Line {
     ofPoint A;
@@ -98,9 +103,7 @@ public:
     ofPoint         toEarth;
     
     // Equatorial
-    ofPoint         n_pole;
     ofPoint         v_equi;
-    ofPoint         s_sols;
     
     // Horizontal
     float           X,Y,Z, T;

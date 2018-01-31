@@ -137,15 +137,11 @@ void ofApp::update(){
     // HUDS ELEMENTS
     // --------------------------------
     
+    // Calculate Equinox vector
+    v_equi = toOf(AstroOps::eclipticToEquatorial(obs, Vector(0.0, 0.0 , 1)).getEquatorialVector()).normalize();
+    
     // Equatorial North, Vernal Equinox and Summer Solstice
-    Vector z = AstroOps::eclipticToEquatorial(obs, Vector(0.0, -90.0, 1)).getEquatorialVector();
-    Vector y = AstroOps::eclipticToEquatorial(obs, Vector(0.0, 0.0 , 1)).getEquatorialVector();
-    Vector x = AstroOps::eclipticToEquatorial(obs, Vector(90.0, 0.0, 1)).getEquatorialVector();
-    
-    n_pole = toOf(z).normalize();
-    v_equi = toOf(y).normalize();
-    s_sols = toOf(x).normalize();
-    
+
     toEarth = planets[2].m_helioC;
     toEarth.normalize();
     
@@ -252,6 +248,9 @@ void ofApp::draw(){
 
     // Draw Sun
     ofSetColor(255);
+#ifdef DEBUG_AXIS
+    ofDrawAxis(15);
+#endif
     ofDrawSphere(10);
 
     // Draw Planets and their orbits (HelioCentric)
@@ -273,18 +272,9 @@ void ofApp::draw(){
     // ECLIPTIC GEOCENTRIC COORD SYSTEM
     // --------------------------------------- begin Ec Geo
     ofTranslate(planets[2].m_helioC);
-
-    ofPushMatrix();
-    ofSetColor(palette[2]);
-    ofDrawLine(n_pole * 4.,n_pole * -4.);
-    ofDrawLine(v_equi * 4., v_equi * -4);
-    ofDrawLine(s_sols * 4.,s_sols * -4);
-
-    ofSetColor(255);
-    ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
-    ofDrawBitmapString("N", n_pole * 5.5);
-    ofDrawBitmapString("S", -n_pole * 5.5);
-    ofPopMatrix();
+#ifdef DEBUG_AXIS
+    ofDrawAxis(10);
+#endif
 
 #ifdef BODIES_ECLIP_GEO
     // Check that Geocentric Vector to planets match
@@ -298,10 +288,27 @@ void ofApp::draw(){
 #endif
 
     ofPushMatrix();
-
     // EQUATORIAL COORD SYSTEM
     // --------------------------------------- begin Eq
     ofRotateX(ofRadToDeg(-obs.getObliquity()));
+#ifdef DEBUG_AXIS
+    ofDrawAxis(7);
+#endif
+    
+    // Poles, Equinoxes and Solsices
+    ofSetColor(palette[2], 100);
+    ofPoint n_pole = ofPoint(0., 0., 1.);
+    ofPoint s_sols = ofPoint(0., 1., 0.);
+    ofDrawLine(n_pole * 4.,n_pole * -4.);
+    ofDrawLine(s_sols * 4.,s_sols * -4);
+    
+    ofSetColor(palette[2]);
+    ofDrawLine(v_equi * 4., v_equi * -4);
+    
+    ofSetColor(255);
+    ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
+    ofDrawBitmapString("N", n_pole * 5.5);
+    ofDrawBitmapString("S", -n_pole * 5.5);
     
 #ifdef BODIES_EQUAT
     // Check that Equatorial Vector to planets match
@@ -313,17 +320,32 @@ void ofApp::draw(){
         }
     }
 #endif
+
+    ofNoFill();
+    ofSetColor(255,0,0);
+    ofDrawCircle(ofPoint(0.,0.,0.), 4.);
+    
+    // Disk
+    drawDisk(3,4, palette[1]);
+
+    ofPushMatrix();
+    // -------------------------------------- begin of Sphere
+    ofRotateX(90);
+    ofRotateY(-90);
     
     ofPushMatrix();
     // -------------------------------------- begin Hour Angle rotation
-    ofRotateX(-45);
     // Rotate earth
+    
     ofRotateY((TimeOps::greenwichSiderealHour(obs.getJulianDate())/24.)*360.);
+#ifdef DEBUG_AXIS
+    ofDrawAxis(5);
+#endif
     
     // Location
     ofSetColor(255);
     ofDrawArrow(ofPoint(0.), loc);
-    
+
     // Earth
     ofFill();
     ofSetColor(255);
@@ -331,69 +353,71 @@ void ofApp::draw(){
     earth_shader.setUniformTexture("u_diffuse", earth_texture, 0);
     ofDrawSphere(1.7);
     earth_shader.end();
-    
+
     // Equator
-    ofPushMatrix();
-    ofRotateX(90);
-    ofNoFill();
-    ofSetColor(255,0,0);
-    ofDrawCircle(ofPoint(0.,0.,0.), 4.);
-    
-    // Disk
-    drawDisk(3,4, palette[1]);
-    ofPopMatrix();
-    
     ofPushMatrix();
 
     // -------------------------------------- begin Topo
+    
     ofRotateY(lng);
     ofRotateX(lat);
     ofTranslate(0., 0., -1.71);
-    
-#ifdef BODIES_HORIZ
+
     // Check that Horizontal Vector to planets match
     ofFill();
     ofSetColor(255,0,255);
     drawDisk(.5, .6, palette[3]);
-    
+
     ofRotateY(-90);
     
-    ofRotateZ(Z);
-    ofRotateY(Y);
     ofRotateX(X);
+    ofRotateY(Y);
+    ofRotateZ(Z);
     
-//    ofDrawRotationAxes(.5, 0.05);
+#ifdef DEBUG_AXIS
+    ofDrawAxis(2);
+#endif
     
-    ofDrawAxis(3);
-    
+#ifdef SUN_HORIZ
     ofSetColor(palette[3], 250);
     ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
     if (sun.getAltitud() > 0) {
-//        Vector v2sun = sun.getHorizontalVector();
-//        ofPoint toSun = ofPoint(v2sun.x,v2sun.y,-v2sun.z) * scale;
         ofPoint toSun = toOf(sun.getHorizontalVector()) * scale;
         ofDrawLine(ofPoint(0.), toSun);
         ofDrawBitmapString(sun.getBodyName(), toSun);
     }
+#endif
     
+#ifdef MOON_HORIZ
+    ofSetColor(palette[3], 250);
+    ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
+    if (moon.getAltitud() > 0) {
+        ofPoint toMoon = toOf(moon.getHorizontalVector()) * 20 * scale;
+        ofDrawLine(ofPoint(0.), toMoon);
+        ofDrawBitmapString(moon.getBodyName(), toMoon);
+    }
+#endif
+
+#ifdef BODIES_HORIZ
     ofSetColor(palette[3], 100);
+    ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
     for ( int i = 0; i < planets.size(); i++) {
         if (planets[i].getBodyId() != EARTH &&
             planets[i].getAltitud() > 0) {
-            
-//            Vector v2p = planets[i].getHorizontalVector();
-//            ofPoint toPlanet = ofPoint(v2p.x, v2p.y, -v2p.z) * scale;
             ofPoint toPlanet = toOf(planets[i].getHorizontalVector()) * scale;
             ofDrawLine(ofPoint(0.), toPlanet);
             ofDrawBitmapString(planets[i].getBodyName(), toPlanet);
         }
     }
-    
+
 #endif
     // --------------------------------------- end Topo
     ofPopMatrix();
     
     // --------------------------------------- end Hour Angle
+    ofPopMatrix();
+    
+    // -------------------------------------- end of Sphere
     ofPopMatrix();
 
     // --------------------------------------- end Eq
