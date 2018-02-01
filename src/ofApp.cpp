@@ -54,9 +54,6 @@ void ofApp::setup(){
     bWriten = false;
     scale = 100.;
     
-    ofLoadImage(earth_texture, "diffuse.png");
-    earth_shader.load("shaders/earth");
-    
     // Location
     geoLoc(lng, lat, ofToDataPath(GEOIP_DB), ofToDataPath(GEOLOC_FILE));
     obs = Observer(lng, lat);
@@ -93,6 +90,11 @@ void ofApp::setup(){
     billboard.addTexCoord(ofVec2f(1.,1.));
     billboard.addColor(ofFloatColor(1.));
     luna = Luna();
+#endif
+    
+#ifdef TOPO_SHADER
+    ofLoadImage(earth_texture, "diffuse.png");
+    earth_shader.load("shaders/earth");
 #endif
     
     T = X = Y = Z = 0;
@@ -244,7 +246,7 @@ void ofApp::draw(){
     ofPushMatrix();
 
     // ECLIPTIC HELIOCENTRIC COORD SYSTEM
-    // --------------------------------------- begin Ec Helio
+    // --------------------------------------- begin Heliocentric Ecliptic
 
     // Draw Sun
     ofSetColor(255);
@@ -270,7 +272,7 @@ void ofApp::draw(){
     ofPushMatrix();
 
     // ECLIPTIC GEOCENTRIC COORD SYSTEM
-    // --------------------------------------- begin Ec Geo
+    // --------------------------------------- begin Geocentric Ecliptic
     ofTranslate(planets[2].m_helioC);
 #ifdef DEBUG_AXIS
     ofDrawAxis(10);
@@ -289,12 +291,14 @@ void ofApp::draw(){
 
     ofPushMatrix();
     // EQUATORIAL COORD SYSTEM
-    // --------------------------------------- begin Eq
+    // --------------------------------------- begin Equatorial
     ofRotateX(ofRadToDeg(-obs.getObliquity()));
+    
 #ifdef DEBUG_AXIS
     ofDrawAxis(7);
 #endif
     
+#ifdef EQUAT_DIR
     // Poles, Equinoxes and Solsices
     ofSetColor(palette[2], 100);
     ofPoint n_pole = ofPoint(0., 0., 1.);
@@ -309,6 +313,7 @@ void ofApp::draw(){
     ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
     ofDrawBitmapString("N", n_pole * 5.5);
     ofDrawBitmapString("S", -n_pole * 5.5);
+#endif
     
 #ifdef BODIES_EQUAT
     // Check that Equatorial Vector to planets match
@@ -321,12 +326,14 @@ void ofApp::draw(){
     }
 #endif
 
+#ifdef EQUAT_DISK
     ofNoFill();
     ofSetColor(255,0,0);
     ofDrawCircle(ofPoint(0.,0.,0.), 4.);
     
     // Disk
     drawDisk(3,4, palette[1]);
+#endif
 
     ofPushMatrix();
     // -------------------------------------- begin of Sphere
@@ -334,40 +341,47 @@ void ofApp::draw(){
     ofRotateY(-90);
     
     ofPushMatrix();
-    // -------------------------------------- begin Hour Angle rotation
+    // -------------------------------------- begin Hour Angle (Topo)
     // Rotate earth
     
     ofRotateY((TimeOps::greenwichSiderealHour(obs.getJulianDate())/24.)*360.);
+    
 #ifdef DEBUG_AXIS
     ofDrawAxis(5);
 #endif
     
-    // Location
-    ofSetColor(255);
-    ofDrawArrow(ofPoint(0.), loc);
-
     // Earth
     ofFill();
+#ifdef TOPO_SHADER
     ofSetColor(255);
     earth_shader.begin();
     earth_shader.setUniformTexture("u_diffuse", earth_texture, 0);
     ofDrawSphere(1.7);
     earth_shader.end();
+#else
+    ofSetColor(ofFloatColor(.9));
+    ofDrawSphere(1.7);
+#endif
 
-    // Equator
+#ifdef TOPO_ARROW
+    // Location arrow
+    ofSetColor(255);
+    ofDrawArrow(ofPoint(0.), loc);
+#endif
+
     ofPushMatrix();
-
-    // -------------------------------------- begin Topo
-    
+    // -------------------------------------- begin location (topo)
     ofRotateY(lng);
     ofRotateX(lat);
     ofTranslate(0., 0., -1.71);
-
+    
+#ifdef TOPO_DISK
     // Check that Horizontal Vector to planets match
-    ofFill();
-    ofSetColor(255,0,255);
     drawDisk(.5, .6, palette[3]);
-
+#endif
+    
+    ofPushMatrix();
+    // -------------------------------------- begin Horizontal (topo)
     ofRotateY(-90);
     
     ofRotateX(X);
@@ -409,21 +423,24 @@ void ofApp::draw(){
             ofDrawBitmapString(planets[i].getBodyName(), toPlanet);
         }
     }
-
 #endif
-    // --------------------------------------- end Topo
+    
+    // --------------------------------------- end Horizontal (topo)
     ofPopMatrix();
     
-    // --------------------------------------- end Hour Angle
+    // --------------------------------------- end Location (Topo)
     ofPopMatrix();
     
-    // -------------------------------------- end of Sphere
+    // --------------------------------------- end Hour Angle (Topo)
+    ofPopMatrix();
+    
+    // --------------------------------------- end of Sphere
     ofPopMatrix();
 
-    // --------------------------------------- end Eq
+    // --------------------------------------- end Equatorial
     ofPopMatrix();
 
-    // --------------------------------------- end Ec Geo
+    // --------------------------------------- end Geocentric Ecliptic
     ofPopMatrix();
 
     // Draw Earth-Sun Vector
@@ -447,6 +464,7 @@ void ofApp::draw(){
     moon_shader.end();
 #endif
 
+#ifdef HUD_LINES
     // Draw Hud elements
     ofSetColor(255);
     for ( int i = 0; i < lines.size(); i++ ) {
@@ -457,8 +475,9 @@ void ofApp::draw(){
             ofDrawBitmapString (lines[i].text, lines[i].T);
         }
     }
+#endif
 
-    // --------------------------------------- end Ec Helio
+    // --------------------------------------- end Heliocentric Ecliptic
     ofPopMatrix();
 
     cam.end();

@@ -21,13 +21,23 @@
 
 //#define MOON_PHASES
 #define BODIES_TRAIL
-#define BODIES_ECLIP_HELIO
+//#define BODIES_ECLIP_HELIO
 //#define BODIES_ECLIP_GEO
-#define BODIES_EQUAT
-#define BODIES_HORIZ
+//#define BODIES_EQUAT
+//#define BODIES_HORIZ
+//#define SUN_HORIZ
+//#define MOON_HORIZ
 
-#define SUN_HORIZ
-#define MOON_HORIZ
+#define HELIO_ARROW
+
+#define EQUAT_DIR
+#define EQUAT_DISK
+
+//#define TOPO_SHADER
+//#define TOPO_ARROW
+//#define TOPO_DISK
+
+#define HUD_LINES
 
 //#define DEBUG_AXIS
 
@@ -96,8 +106,10 @@ public:
     
     // EART
     // -----------------------
+#ifdef TOPO_SHADER
     ofTexture       earth_texture;
     ofShader        earth_shader;
+#endif
     
     // Ecliptical
     ofPoint         toEarth;
