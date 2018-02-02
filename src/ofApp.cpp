@@ -2,6 +2,7 @@
 
 #include "GeoLoc/src/GeoLoc.h"
 #include "Astro/src/AstroOps.h"
+#include "Astro/src/EcPoint.h"
 
 #include "TimeOps.h"
 double initial_jd;
@@ -50,7 +51,7 @@ void ofApp::setup(){
     ofSetCircleResolution(36);
     
     syphon.setName("Solar");
-    cam.setPosition(-71.8425, 80.3674, -4.14539);
+    cam.setPosition(-71.8425, 80.3674, 4.14539);
     bWriten = false;
     scale = 100.;
     
@@ -134,13 +135,13 @@ void ofApp::update(){
     
     // Update moon position (the distance from the earth is not in scale)
     moon.compute(obs);
-    moon.m_helioC = ( moon.getGeoPosition() * 20*scale ) + ( planets[2].getHelioPosition() * scale);
+    moon.m_helioC = ( moon.getGeoPosition() * 20 * scale ) + ( planets[2].getHelioPosition() * scale);
     
     // HUDS ELEMENTS
     // --------------------------------
     
     // Calculate Equinox vector
-    v_equi = toOf(AstroOps::eclipticToEquatorial(obs, Vector(0.0, 0.0 , 1)).getEquatorialVector()).normalize();
+    v_equi = toOf(AstroOps::eclipticToEquatorial(obs, EcPoint(0.0, 0.0 , 1)).getEquatorialVector() ).normalize();
     
     // Equatorial North, Vernal Equinox and Summer Solstice
 
@@ -153,6 +154,9 @@ void ofApp::update(){
 #ifdef MOON_PHASES
     // Moon phases
     luna.compute(obs);
+    cout << "Moon ecliptic radius: " << moon.getGeocentricEcliptic().getRadius() << endl;
+    cout << "Moon vector magnitud: " << moon.getGeocentricVector().magnitud() << endl;
+    cout << "Luna: " << luna.getDistance()* AstroOps::KM_TO_AU << endl;
     float moon_phase = luna.getAge()/Luna::SYNODIC_MONTH;
     int moon_curPhase = moon_phase * 8;
     if (moon_curPhase != moon_prevPhase) {
@@ -162,7 +166,7 @@ void ofApp::update(){
 #endif
     
     // Equinoxes & Solstices
-    if (abs(toEarth.dot(v_equi)) > .999999 && !bWriten) {
+    if (abs(toEarth.dot(v_equi)) > .9999995 && !bWriten) {
         Line newLine;
         newLine.A = planets[2].m_helioC;
         newLine.B = toEarth * 90.;
@@ -236,7 +240,6 @@ void ofApp::draw(){
     
     // Set Camera
     cam.setTarget(planets[2].m_helioC);
-    cam.roll(90);
 
     ofEnableDepthTest();
     ofEnableAlphaBlending();

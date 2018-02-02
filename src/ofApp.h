@@ -15,20 +15,21 @@
 #include "ofxBody.h"
 #include "ofxMoon.h"
 
-//#define TIME_ANIMATION 4.0
-#define TIME_ANIMATION .015
+#define TIME_ANIMATION 4.0
+//#define TIME_ANIMATION .015
 //#define TIME_MANUAL
 
-//#define MOON_PHASES
 #define BODIES_TRAIL
-//#define BODIES_ECLIP_HELIO
-//#define BODIES_ECLIP_GEO
-//#define BODIES_EQUAT
-//#define BODIES_HORIZ
-//#define SUN_HORIZ
-//#define MOON_HORIZ
-
+#define HUD_LINES
 #define HELIO_ARROW
+#define MOON_PHASES
+
+#define BODIES_ECLIP_HELIO
+//#define BODIES_ECLIP_GEO
+#define BODIES_EQUAT
+//#define BODIES_HORIZ
+#define SUN_HORIZ
+#define MOON_HORIZ
 
 #define EQUAT_DIR
 #define EQUAT_DISK
@@ -36,8 +37,6 @@
 //#define TOPO_SHADER
 //#define TOPO_ARROW
 //#define TOPO_DISK
-
-#define HUD_LINES
 
 //#define DEBUG_AXIS
 
