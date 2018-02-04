@@ -116,10 +116,10 @@ void ofApp::update(){
 #endif
 #endif
     
-    TimeOps::JDtoMDY(obs.getJulianDate()-0.3333333333, month, day, year);
-    date = ofToString(year) + "/" + ofToString(month,2,'0') + "/" + ofToString(int(day),2,'0');
-    TimeOps::toHMS(day, hour, min, sec);
-    time = " " + ofToString(hour,2,'0') + ":" + ofToString(min,2,'0') + ":" + ofToString(int(sec),2,'0');
+    TimeOps::JDtoDMY(obs.getJulianDate(), day, month, year);
+//    date = ofToString(year) + "/" + ofToString(month,2,'0') + "/" + ofToString(int(day),2,'0');
+    date = TimeOps::formatDateTime(obs.getJulianDate(), Y_MON_D);
+    time = std::string(TimeOps::formatTime(obs.getJulianDate(), true));
     
     // Updating BODIES positions
     // --------------------------------
@@ -155,7 +155,7 @@ void ofApp::update(){
     // Moon phases
     luna.compute(obs);
     cout << "Moon ecliptic radius: " << moon.getGeocentricEcliptic().getRadius() << endl;
-    cout << "Moon vector magnitud: " << moon.getGeocentricVector().magnitud() << endl;
+    cout << "Moon vector magnitud: " << moon.getGeocentricVector().getMagnitud() << endl;
     cout << "Luna: " << luna.getDistance()* AstroOps::KM_TO_AU << endl;
     float moon_phase = luna.getAge()/Luna::SYNODIC_MONTH;
     int moon_curPhase = moon_phase * 8;
@@ -306,10 +306,10 @@ void ofApp::draw(){
     ofSetColor(palette[2], 100);
     ofPoint n_pole = ofPoint(0., 0., 1.);
     ofPoint s_sols = ofPoint(0., 1., 0.);
-    ofDrawLine(n_pole * 4.,n_pole * -4.);
     ofDrawLine(s_sols * 4.,s_sols * -4);
     
     ofSetColor(palette[2]);
+    ofDrawLine(n_pole * 4.,n_pole * -4.);
     ofDrawLine(v_equi * 4., v_equi * -4);
     
     ofSetColor(255);

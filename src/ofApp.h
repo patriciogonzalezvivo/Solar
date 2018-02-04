@@ -15,8 +15,8 @@
 #include "ofxBody.h"
 #include "ofxMoon.h"
 
-#define TIME_ANIMATION 4.0
-//#define TIME_ANIMATION .015
+//#define TIME_ANIMATION 4.0
+#define TIME_ANIMATION .015
 //#define TIME_MANUAL
 
 #define BODIES_TRAIL
@@ -34,9 +34,9 @@
 #define EQUAT_DIR
 #define EQUAT_DISK
 
-//#define TOPO_SHADER
-//#define TOPO_ARROW
-//#define TOPO_DISK
+#define TOPO_SHADER
+#define TOPO_ARROW
+#define TOPO_DISK
 
 //#define DEBUG_AXIS
 
@@ -75,10 +75,10 @@ public:
     // Time
     std::string     date;
     std::string     time;
-    double          sec;
-    int             min;
-    int             hour;
-    double          day, prevDay;
+//    double          sec;
+//    int             min;
+//    int             hour;
+    int             day, prevDay;
     int             month, prevMonth;
     int             year, prevYear;
     std::string     oneYearIn;
