@@ -61,7 +61,8 @@ void ofApp::setup(){
     loc = ofQuaternion(-lat, ofPoint(1., 0., 0.)) * ofQuaternion(lng-180, ofPoint(0., 1., 0.)) * ofPoint(0.,0.,2.);
     
     // Time
-    initial_jd = obs.getJulianDate();
+    initial_jd = obs.getJD();
+//    initial_jd = TimeOps::now(true)-.5;
     
     // Bodies
     BodyId planets_names[] = { MERCURY, VENUS, EARTH, MARS, JUPITER, SATURN, URANUS, NEPTUNE, PLUTO, LUNA };
@@ -107,19 +108,20 @@ void ofApp::update(){
     // TIME CALCULATIONS
     // --------------------------------
 #ifdef TIME_ANIMATION
-    obs.setJuliaDay(initial_jd + ofGetElapsedTimef() * TIME_ANIMATION);
+    obs.setJD(initial_jd + ofGetElapsedTimef() * TIME_ANIMATION);
 #else
 #ifdef TIME_MANUAL
-    obs.setJuliaDay(initial_jd + T);
+    obs.setJD(initial_jd + T);
 #else
-    obs.setTime();
+    obs.setJD(TimeOps::now(true));
 #endif
 #endif
     
-    TimeOps::JDtoDMY(obs.getJulianDate(), day, month, year);
+    TimeOps::toDMY(obs.getJD(), day, month, year);
 //    date = ofToString(year) + "/" + ofToString(month,2,'0') + "/" + ofToString(int(day),2,'0');
-    date = TimeOps::formatDateTime(obs.getJulianDate(), Y_MON_D);
-    time = std::string(TimeOps::formatTime(obs.getJulianDate(), true));
+    date = TimeOps::formatDateTime(obs.getJD(), Y_MON_D);
+    time =
+    time = std::string(TimeOps::formatTime(obs.getJD(), true));
     
     // Updating BODIES positions
     // --------------------------------
@@ -216,7 +218,7 @@ void ofApp::update(){
         lines.push_back(newLine);
     }
     else if (int(day) != int(prevDay)) {
-        int dow = TimeOps::MJDtoDOW(TimeOps::JDtoMJD(obs.getJulianDate()));
+        int dow = TimeOps::toDOW( obs.getJD() );
         
         Line newLine;
 
@@ -347,7 +349,7 @@ void ofApp::draw(){
     // -------------------------------------- begin Hour Angle (Topo)
     // Rotate earth
     
-    ofRotateY((TimeOps::greenwichSiderealHour(obs.getJulianDate())/24.)*360.);
+    ofRotateY((TimeOps::toGreenwichSiderealHour(obs.getJD())/24.)*360.);
     
 #ifdef DEBUG_AXIS
     ofDrawAxis(5);
