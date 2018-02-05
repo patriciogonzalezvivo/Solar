@@ -27,7 +27,7 @@
 #define BODIES_ECLIP_HELIO
 //#define BODIES_ECLIP_GEO
 #define BODIES_EQUAT
-//#define BODIES_HORIZ
+#define BODIES_HORIZ
 #define SUN_HORIZ
 #define MOON_HORIZ
 
