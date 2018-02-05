@@ -120,7 +120,7 @@ void ofApp::update(){
     TimeOps::toDMY(obs.getJD(), day, month, year);
 //    date = ofToString(year) + "/" + ofToString(month,2,'0') + "/" + ofToString(int(day),2,'0');
     date = TimeOps::formatDateTime(obs.getJD(), Y_MON_D);
-    time = std::string(TimeOps::formatTime(obs.getJD(), true));
+    time = std::string(TimeOps::formatTime(obs.getJD() + 0.1666666667, true));
     
     // Updating BODIES positions
     // --------------------------------
