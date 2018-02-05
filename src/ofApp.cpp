@@ -347,9 +347,7 @@ void ofApp::draw(){
     ofPushMatrix();
     // -------------------------------------- begin Hour Angle (Topo)
     // Rotate earth
-    
-    ofRotateY((TimeOps::toGreenwichSiderealHour(obs.getJD())/24.)*360.);
-    
+    ofRotateY( MathOps::toDegrees(TimeOps::toGreenwichSiderealTime(obs.getJD())) );
 #ifdef DEBUG_AXIS
     ofDrawAxis(5);
 #endif
