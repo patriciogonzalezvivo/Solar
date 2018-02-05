@@ -383,7 +383,7 @@ void ofApp::draw(){
 #endif
     
     ofPushMatrix();
-    // -------------------------------------- begin Horizontal (topo)
+    // -------------------------------------- begin Horizontal (topo)xw
     ofRotateY(-90);
     
     ofRotateX(X);
