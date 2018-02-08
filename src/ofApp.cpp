@@ -432,11 +432,16 @@ void ofApp::draw(){
     ofPushMatrix();
     // -------------------------------------- begin Horizontal (topo)xw
     ofRotateX(90);
+    
+#ifdef TOPO_HUD
     drawDial(.8, .05, 4, palette[3]);
+#endif
     
     ofRotateY(90);
+#ifdef TOPO_HUD
     drawDial(.8, .05, 4, palette[3]);
-
+#endif
+    
     ofRotateX(X);
     ofRotateY(Y);
     ofRotateZ(Z);
