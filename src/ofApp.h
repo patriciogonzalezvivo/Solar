@@ -16,8 +16,8 @@
 #include "ofxMoon.h"
 
 //#define TIME_ANIMATION 4.0
-//#define TIME_ANIMATION .015
-#define TIME_MANUAL
+#define TIME_ANIMATION .015
+//#define TIME_MANUAL
 
 //#define BODIES_TRAIL
 #define HUD_LINES
@@ -37,6 +37,8 @@
 #define TOPO_SHADER
 #define TOPO_ARROW
 #define TOPO_DISK
+#define TOPO_HUD
+//#define TOPO_LABELS
 
 //#define DEBUG_AXIS
 
@@ -44,6 +46,13 @@ struct Line {
     ofPoint A;
     ofPoint B;
     ofPoint T;
+    std::string text;
+};
+
+struct HorLine {
+    HorPoint A;
+    HorPoint B;
+    HorPoint T;
     std::string text;
 };
 
@@ -122,5 +131,8 @@ public:
     // HUD
     // -----------------------
     vector<Line>    lines;
+#ifdef TOPO_HUD
+    vector<HorLine> topoLines;
+#endif
     ofVboMesh       billboard;
 };

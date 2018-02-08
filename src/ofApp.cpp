@@ -28,19 +28,38 @@ void drawString(const std::string &str, int x , int y) {
     ofDrawBitmapStringHighlight(str, x - str.length() * 4, y);
 }
 
-void drawDisk(float in_radio, float out_radio, ofFloatColor c) {
-    for (int i = 0; i < 90; i ++) {
+void drawDisk(float in_radio, float out_radio, int step, ofFloatColor c) {
+    int total = 360/step;
+    for (int i = 0; i < total; i++) {
+        ofPoint p;
+        float a = ofDegToRad(i*step-180);
+        p.x = cos(a);
+        p.y = sin(a);
+        
+        ofSetColor(c, 200);
         if ((i*4)%90 == 0) {
             ofSetColor(c, 255);
         }
-        else {
-            ofSetColor(c, 200);
-        }
-        ofPoint p;
-        float a = ofDegToRad(i*4-90);
-        p.x = cos(a);
-        p.y = sin(a);
-        ofDrawLine(p*in_radio,p*out_radio);
+        ofDrawLine(p*in_radio, p*out_radio);
+    }
+}
+
+void drawDial(float radio, float width, int step, ofFloatColor c) {
+    ofSetColor(c, 200);
+    int total = 360/step;
+    for (int i = 0; i < total; i++) {
+        ofPoint p1, p2;
+        float a = ofDegToRad(i*step);
+        float b = ofDegToRad(i*step);
+        p1.x = cos(a);
+        p1.y = sin(a);
+        p1.z = -width*.5;
+        
+        p2.x = cos(b);
+        p2.y = sin(b);
+        p2.z = +width*.5;
+        
+        ofDrawLine(p1*radio, p2*radio);
     }
 }
 
@@ -97,6 +116,34 @@ void ofApp::setup(){
 #ifdef TOPO_SHADER
     ofLoadImage(earth_texture, "diffuse.png");
     earth_shader.load("shaders/earth");
+#endif
+    
+#ifdef TOPO_HUD
+    vector<std::string> direction = { "N", "E", "S", "W" };
+    int step = 5;
+    int total = 360/step;
+    int labelstep = total/direction.size();
+    for (int i = 0; i < total; i++) {
+        HorLine h1, v1;
+        float a = i*step;
+        float b = (i+1)*step;
+        h1.A = HorPoint(0., a);
+        h1.B = HorPoint(0., b);
+        
+        v1.A = HorPoint(0., a);
+        
+        if (i%labelstep == 0) {
+            h1.T = HorPoint(10., a+10.);
+            h1.text = direction[int(i/labelstep)];
+            v1.B = HorPoint(10., a);
+        }
+        else {
+            v1.B = HorPoint(5., a);
+        }
+        
+        topoLines.push_back(h1);
+        topoLines.push_back(v1);
+    }
 #endif
     
     T = X = Y = Z = 0;
@@ -336,7 +383,7 @@ void ofApp::draw(){
     ofDrawCircle(ofPoint(0.,0.,0.), 4.);
     
     // Disk
-    drawDisk(3,4, palette[1]);
+    drawDisk(3, 4, 4, palette[1]);
 #endif
 
     ofPushMatrix();
@@ -379,13 +426,17 @@ void ofApp::draw(){
     
 #ifdef TOPO_DISK
     // Check that Horizontal Vector to planets match
-    drawDisk(.5, .6, palette[3]);
+    drawDisk(.5, .8, 5, palette[3]);
 #endif
     
     ofPushMatrix();
     // -------------------------------------- begin Horizontal (topo)xw
-    ofRotateY(-90);
+    ofRotateX(90);
+    drawDial(.8, .05, 4, palette[3]);
     
+    ofRotateY(90);
+    drawDial(.8, .05, 4, palette[3]);
+
     ofRotateX(X);
     ofRotateY(Y);
     ofRotateZ(Z);
@@ -394,36 +445,57 @@ void ofApp::draw(){
     ofDrawAxis(2);
 #endif
     
+    ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
+    
 #ifdef SUN_HORIZ
     ofSetColor(palette[3], 250);
-    ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
     if (sun.getAltitud() > 0) {
         ofPoint toSun = toOf(sun.getHorizontalVector()) * scale;
         ofDrawLine(ofPoint(0.), toSun);
+#ifdef TOPO_LABELS
         ofDrawBitmapString(sun.getBodyName(), toSun);
+#endif
     }
 #endif
     
 #ifdef MOON_HORIZ
     ofSetColor(palette[3], 250);
-    ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
     if (moon.getAltitud() > 0) {
         ofPoint toMoon = toOf(moon.getHorizontalVector()) * 20 * scale;
         ofDrawLine(ofPoint(0.), toMoon);
+#ifdef TOPO_LABELS
         ofDrawBitmapString(moon.getBodyName(), toMoon);
+#endif
     }
 #endif
 
 #ifdef BODIES_HORIZ
     ofSetColor(palette[3], 100);
-    ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
     for ( int i = 0; i < planets.size(); i++) {
         if (planets[i].getBodyId() != EARTH &&
             planets[i].getAltitud() > 0) {
             ofPoint toPlanet = toOf(planets[i].getHorizontalVector()) * scale;
             ofDrawLine(ofPoint(0.), toPlanet);
+#ifdef TOPO_LABELS
             ofDrawBitmapString(planets[i].getBodyName(), toPlanet);
+#endif
         }
+    }
+#endif
+    
+#ifdef TOPO_HUD
+    for (int i = 0; i < topoLines.size(); i++) {
+        ofSetColor(palette[3]);
+        ofPoint a = toOf(topoLines[i].A.getHorizontalVector());
+        ofPoint b = toOf(topoLines[i].B.getHorizontalVector());
+        
+        if (topoLines[i].text != "") {
+            ofSetColor(palette[4]);
+            ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
+            ofDrawBitmapString (topoLines[i].text, toOf(topoLines[i].T.getHorizontalVector()));
+        }
+        
+        ofDrawLine(a, b);
     }
 #endif
     
