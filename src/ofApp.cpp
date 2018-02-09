@@ -81,6 +81,7 @@ void ofApp::setup(){
     
     // Time
     initial_jd = obs.getJD();
+//    initial_jd = TimeOps::toJD(TimeOps::getCurrentSeconds());
     
     // Bodies
     BodyId planets_names[] = { MERCURY, VENUS, EARTH, MARS, JUPITER, SATURN, URANUS, NEPTUNE, PLUTO, LUNA };
@@ -159,12 +160,11 @@ void ofApp::update(){
 #ifdef TIME_MANUAL
     obs.setJD(initial_jd + T);
 #else
-    obs.setJD(TimeOps::now(true));
+    obs.setJD(TimeOps::now());
 #endif
 #endif
     
     TimeOps::toDMY(obs.getJD(), day, month, year);
-//    date = ofToString(year) + "/" + ofToString(month,2,'0') + "/" + ofToString(int(day),2,'0');
     date = TimeOps::formatDateTime(obs.getJD(), Y_MON_D);
     time = std::string(TimeOps::formatTime(obs.getJD() + 0.1666666667, true));
     
@@ -183,7 +183,7 @@ void ofApp::update(){
     // Update moon position (the distance from the earth is not in scale)
     moon.compute(obs);
     moon.m_helioC = ( moon.getGeoPosition() * 20 * scale ) + ( planets[2].getHelioPosition() * scale);
-    
+
     // HUDS ELEMENTS
     // --------------------------------
     
@@ -439,9 +439,9 @@ void ofApp::draw(){
     drawDial(.8, .05, 4, palette[3]);
 #endif
     
-    ofRotateX(X);
-    ofRotateY(Y);
-    ofRotateZ(Z);
+//    ofRotateX(X);
+//    ofRotateY(Y);
+//    ofRotateZ(Z);
     
 #ifdef DEBUG_AXIS
     ofDrawAxis(2);
@@ -571,43 +571,7 @@ void ofApp::draw(){
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
     
-    if ( key == 'q' ) {
-        X--;
-        cout << "X: " << X << endl;
-    }
-    else if ( key == 'a' ) {
-        X++;
-        cout << "X: " << X << endl;
-    }
-    else if ( key == 'z' ) {
-        X = 0;
-        cout << "X: " << X << endl;
-    }
-    else if ( key == 'w' ) {
-        Y--;
-        cout << "Y: " << Y << endl;
-    }
-    else if ( key == 's' ) {
-        Y++;
-        cout << "Y: " << Y << endl;
-    }
-    else if ( key == 'x' ) {
-        Y = 0;
-        cout << "Y: " << Y << endl;
-    }
-    else if ( key == 'e' ) {
-        Z--;
-        cout << "Z: " << Z << endl;
-    }
-    else if ( key == 'd' ) {
-        Z++;
-        cout << "Z: " << Z << endl;
-    }
-    else if ( key == 'c' ) {
-        Z = 0;
-        cout << "Z: " << Z << endl;
-    }
-    else if ( key == 'r' ) {
+    if ( key == 'r' ) {
         T -= 0.001;
         cout << "T: " << T << endl;
     }
@@ -619,8 +583,44 @@ void ofApp::keyPressed(int key){
         T = 0;
         cout << "T: " << T << endl;
     }
+//    else if ( key == 'q' ) {
+//        X--;
+//        cout << "X: " << X << endl;
+//    }
+//    else if ( key == 'a' ) {
+//        X++;
+//        cout << "X: " << X << endl;
+//    }
+//    else if ( key == 'z' ) {
+//        X = 0;
+//        cout << "X: " << X << endl;
+//    }
+//    else if ( key == 'w' ) {
+//        Y--;
+//        cout << "Y: " << Y << endl;
+//    }
+//    else if ( key == 's' ) {
+//        Y++;
+//        cout << "Y: " << Y << endl;
+//    }
+//    else if ( key == 'x' ) {
+//        Y = 0;
+//        cout << "Y: " << Y << endl;
+//    }
+//    else if ( key == 'e' ) {
+//        Z--;
+//        cout << "Z: " << Z << endl;
+//    }
+//    else if ( key == 'd' ) {
+//        Z++;
+//        cout << "Z: " << Z << endl;
+//    }
+//    else if ( key == 'c' ) {
+//        Z = 0;
+//        cout << "Z: " << Z << endl;
+//    }
     else {
-    cam.setDistance(10);
+        cam.setDistance(10);
     }
 }
 
