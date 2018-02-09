@@ -81,7 +81,6 @@ void ofApp::setup(){
     
     // Time
     initial_jd = obs.getJD();
-//    initial_jd = TimeOps::now(true)-.5;
     
     // Bodies
     BodyId planets_names[] = { MERCURY, VENUS, EARTH, MARS, JUPITER, SATURN, URANUS, NEPTUNE, PLUTO, LUNA };
@@ -189,7 +188,7 @@ void ofApp::update(){
     // --------------------------------
     
     // Calculate Equinox vector
-    v_equi = toOf(AstroOps::eclipticToEquatorial(obs, EcPoint(0.0, 0.0 , 1)).getEquatorialVector() ).normalize();
+    v_equi = toOf( AstroOps::toEquatorial(obs, EcPoint(0.0, 0.0 , 1)).getVector() ).normalize();
     
     // Equatorial North, Vernal Equinox and Summer Solstice
 
@@ -202,9 +201,7 @@ void ofApp::update(){
 #ifdef MOON_PHASES
     // Moon phases
     luna.compute(obs);
-    cout << "Moon ecliptic radius: " << moon.getGeocentricEcliptic().getRadius() << endl;
-    cout << "Moon vector magnitud: " << moon.getGeocentricVector().getMagnitud() << endl;
-    cout << "Luna: " << luna.getDistance()* AstroOps::KM_TO_AU << endl;
+//    cout << "Luna: " << luna << endl;
     float moon_phase = luna.getAge()/Luna::SYNODIC_MONTH;
     int moon_curPhase = moon_phase * 8;
     if (moon_curPhase != moon_prevPhase) {
@@ -334,7 +331,7 @@ void ofApp::draw(){
     ofSetColor(100,100);
     for ( int i = 0; i < planets.size(); i++) {
         if (planets[i].getBodyId() != EARTH ) {
-            ofPoint toPlanet = toOf(planets[i].getGeocentricVector()) * scale;
+            ofPoint toPlanet = toOf(planets[i].getEclipticGeocentric().getVector()) * scale;
             ofDrawLine(ofPoint(0.), toPlanet);
         }
     }
@@ -454,7 +451,7 @@ void ofApp::draw(){
     
 #ifdef SUN_HORIZ
     ofSetColor(palette[3], 250);
-    if (sun.getAltitud() > 0) {
+    if (sun.getHorizontal().getAltitud() > 0) {
         ofPoint toSun = toOf(sun.getHorizontalVector()) * scale;
         ofDrawLine(ofPoint(0.), toSun);
 #ifdef TOPO_LABELS
@@ -465,7 +462,7 @@ void ofApp::draw(){
     
 #ifdef MOON_HORIZ
     ofSetColor(palette[3], 250);
-    if (moon.getAltitud() > 0) {
+    if (moon.getHorizontal().getAltitud() > 0) {
         ofPoint toMoon = toOf(moon.getHorizontalVector()) * 20 * scale;
         ofDrawLine(ofPoint(0.), toMoon);
 #ifdef TOPO_LABELS
@@ -478,7 +475,7 @@ void ofApp::draw(){
     ofSetColor(palette[3], 100);
     for ( int i = 0; i < planets.size(); i++) {
         if (planets[i].getBodyId() != EARTH &&
-            planets[i].getAltitud() > 0) {
+            planets[i].getHorizontal().getAltitud() > 0) {
             ofPoint toPlanet = toOf(planets[i].getHorizontalVector()) * scale;
             ofDrawLine(ofPoint(0.), toPlanet);
 #ifdef TOPO_LABELS
@@ -491,13 +488,13 @@ void ofApp::draw(){
 #ifdef TOPO_HUD
     for (int i = 0; i < topoLines.size(); i++) {
         ofSetColor(palette[3]);
-        ofPoint a = toOf(topoLines[i].A.getHorizontalVector());
-        ofPoint b = toOf(topoLines[i].B.getHorizontalVector());
+        ofPoint a = toOf(topoLines[i].A.getVector());
+        ofPoint b = toOf(topoLines[i].B.getVector());
         
         if (topoLines[i].text != "") {
             ofSetColor(palette[4]);
             ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
-            ofDrawBitmapString (topoLines[i].text, toOf(topoLines[i].T.getHorizontalVector()));
+            ofDrawBitmapString (topoLines[i].text, toOf(topoLines[i].T.getVector()));
         }
         
         ofDrawLine(a, b);

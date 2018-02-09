@@ -17,12 +17,12 @@ ofxBody::ofxBody(BodyId _planet, float _size) {
 }
 
 ofPoint ofxBody::getGeoPosition() {
-    Vector gPos = getGeocentricVector();
+    Vector gPos = getEclipticGeocentric().getVector();
     return ofPoint(gPos.x, gPos.y, gPos.z);
 }
 
 ofPoint ofxBody::getHelioPosition() {
-    Vector hPos = getHeliocentricVector();
+    Vector hPos = getEclipticHeliocentric().getVector();
     return ofPoint(hPos.x, hPos.y, hPos.z);
 }
 
