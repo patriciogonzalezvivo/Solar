@@ -16,7 +16,7 @@
 #include "ofxMoon.h"
 
 //#define TIME_ANIMATION 4.0
-#define TIME_ANIMATION .0 15
+#define TIME_ANIMATION .015
 //#define TIME_MANUAL
 
 //#define BODIES_TRAIL
@@ -26,7 +26,7 @@
 
 #define BODIES_ECLIP_HELIO
 //#define BODIES_ECLIP_GEO
-//#define BODIES_EQUAT
+#define BODIES_EQUAT
 #define BODIES_HORIZ
 #define SUN_HORIZ
 #define MOON_HORIZ
@@ -50,9 +50,9 @@ struct Line {
 };
 
 struct HorLine {
-    HorPoint A;
-    HorPoint B;
-    HorPoint T;
+    Horizontal A;
+    Horizontal B;
+    Horizontal T;
     std::string text;
 };
 

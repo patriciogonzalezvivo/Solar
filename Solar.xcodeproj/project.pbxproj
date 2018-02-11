@@ -15,7 +15,7 @@
 		6AB0ED712485FCCD8DF8F5CB /* pread.c in Sources */ = {isa = PBXBuildFile; fileRef = 540229E429EA8624E047772E /* pread.c */; };
 		8AB6D4766678600C25FA2CE2 /* GeoIPCity.c in Sources */ = {isa = PBXBuildFile; fileRef = 97223D6394C32D02E0B04AB0 /* GeoIPCity.c */; };
 		8D60C222CBD3F869382832E9 /* ofxSyphonServer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32D6F27DC6308427F9A278C1 /* ofxSyphonServer.mm */; };
-		99693F6120249FF600861356 /* GeoPoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 99693F4020249FF600861356 /* GeoPoint.cpp */; };
+		99693F6120249FF600861356 /* Geodetic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 99693F4020249FF600861356 /* Geodetic.cpp */; };
 		99693F6220249FF600861356 /* Star.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 99693F4220249FF600861356 /* Star.cpp */; };
 		99693F6320249FF600861356 /* Constellation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 99693F4520249FF600861356 /* Constellation.cpp */; };
 		99693F6420249FF600861356 /* Vsop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 99693F4820249FF600861356 /* Vsop.cpp */; };
@@ -25,12 +25,13 @@
 		99693F6820249FF600861356 /* TimeOps.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 99693F4F20249FF600861356 /* TimeOps.cpp */; };
 		99693F6920249FF600861356 /* Vector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 99693F5020249FF600861356 /* Vector.cpp */; };
 		99693F6A20249FF600861356 /* Body.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 99693F5120249FF600861356 /* Body.cpp */; };
-		99693F6B20249FF600861356 /* EqPoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 99693F5220249FF600861356 /* EqPoint.cpp */; };
-		99693F6C20249FF600861356 /* HorPoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 99693F5520249FF600861356 /* HorPoint.cpp */; };
-		99693F6D20249FF600861356 /* EcPoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 99693F5820249FF600861356 /* EcPoint.cpp */; };
+		99693F6B20249FF600861356 /* Equatorial.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 99693F5220249FF600861356 /* Equatorial.cpp */; };
+		99693F6C20249FF600861356 /* Horizontal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 99693F5520249FF600861356 /* Horizontal.cpp */; };
+		99693F6D20249FF600861356 /* Ecliptic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 99693F5820249FF600861356 /* Ecliptic.cpp */; };
 		99693F6E20249FF600861356 /* AstroOps.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 99693F5C20249FF600861356 /* AstroOps.cpp */; };
 		99693F6F20249FF600861356 /* MathOps.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 99693F5D20249FF600861356 /* MathOps.cpp */; };
 		99693F7020249FF600861356 /* ProjOps.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 99693F5E20249FF600861356 /* ProjOps.cpp */; };
+		99C613E9203047CD00CFBF3C /* Polar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 99C613E7203047CD00CFBF3C /* Polar.cpp */; };
 		9D440D8ABDB0AF5F262C2607 /* GeoIP_deprecated.c in Sources */ = {isa = PBXBuildFile; fileRef = E9F004C3581FC0F5914A46B7 /* GeoIP_deprecated.c */; };
 		C9109422648B170B07A778CF /* SyphonNameboundClient.m in Sources */ = {isa = PBXBuildFile; fileRef = E3405C5AE387BDDC2AD19473 /* SyphonNameboundClient.m */; };
 		D6436D62D6F5044D4896AE40 /* GeoLoc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F25E742ED99BC69B000A63E8 /* GeoLoc.cpp */; };
@@ -86,8 +87,8 @@
 		84FBCEA286D0A50E27204265 /* GeoIP.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = GeoIP.h; path = src/GeoLoc/src/GeoIP.h; sourceTree = SOURCE_ROOT; };
 		97223D6394C32D02E0B04AB0 /* GeoIPCity.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 30; name = GeoIPCity.c; path = src/GeoLoc/src/GeoIPCity.c; sourceTree = SOURCE_ROOT; };
 		99693F3F20249FF600861356 /* Luna.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Luna.h; sourceTree = "<group>"; };
-		99693F4020249FF600861356 /* GeoPoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GeoPoint.cpp; sourceTree = "<group>"; };
-		99693F4120249FF600861356 /* GeoPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoPoint.h; sourceTree = "<group>"; };
+		99693F4020249FF600861356 /* Geodetic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Geodetic.cpp; sourceTree = "<group>"; };
+		99693F4120249FF600861356 /* Geodetic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Geodetic.h; sourceTree = "<group>"; };
 		99693F4220249FF600861356 /* Star.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Star.cpp; sourceTree = "<group>"; };
 		99693F4320249FF600861356 /* MathOps.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MathOps.h; sourceTree = "<group>"; };
 		99693F4420249FF600861356 /* Observer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Observer.h; sourceTree = "<group>"; };
@@ -100,25 +101,33 @@
 		99693F4B20249FF600861356 /* Constellation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constellation.h; sourceTree = "<group>"; };
 		99693F4C20249FF600861356 /* Observer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Observer.cpp; sourceTree = "<group>"; };
 		99693F4D20249FF600861356 /* Pluto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Pluto.cpp; sourceTree = "<group>"; };
-		99693F4E20249FF600861356 /* HorPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HorPoint.h; sourceTree = "<group>"; };
+		99693F4E20249FF600861356 /* Horizontal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Horizontal.h; sourceTree = "<group>"; };
 		99693F4F20249FF600861356 /* TimeOps.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TimeOps.cpp; sourceTree = "<group>"; };
 		99693F5020249FF600861356 /* Vector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Vector.cpp; sourceTree = "<group>"; };
 		99693F5120249FF600861356 /* Body.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Body.cpp; sourceTree = "<group>"; };
-		99693F5220249FF600861356 /* EqPoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EqPoint.cpp; sourceTree = "<group>"; };
+		99693F5220249FF600861356 /* Equatorial.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Equatorial.cpp; sourceTree = "<group>"; };
 		99693F5320249FF600861356 /* Vsop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vsop.h; sourceTree = "<group>"; };
 		99693F5420249FF600861356 /* Pluto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pluto.h; sourceTree = "<group>"; };
-		99693F5520249FF600861356 /* HorPoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HorPoint.cpp; sourceTree = "<group>"; };
+		99693F5520249FF600861356 /* Horizontal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Horizontal.cpp; sourceTree = "<group>"; };
 		99693F5620249FF600861356 /* TimeOps.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeOps.h; sourceTree = "<group>"; };
-		99693F5720249FF600861356 /* EqPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EqPoint.h; sourceTree = "<group>"; };
-		99693F5820249FF600861356 /* EcPoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EcPoint.cpp; sourceTree = "<group>"; };
+		99693F5720249FF600861356 /* Equatorial.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Equatorial.h; sourceTree = "<group>"; };
+		99693F5820249FF600861356 /* Ecliptic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Ecliptic.cpp; sourceTree = "<group>"; };
 		99693F5920249FF600861356 /* Star.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Star.h; sourceTree = "<group>"; };
 		99693F5A20249FF600861356 /* Vector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vector.h; sourceTree = "<group>"; };
-		99693F5B20249FF600861356 /* EcPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EcPoint.h; sourceTree = "<group>"; };
+		99693F5B20249FF600861356 /* Ecliptic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Ecliptic.h; sourceTree = "<group>"; };
 		99693F5C20249FF600861356 /* AstroOps.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AstroOps.cpp; sourceTree = "<group>"; };
 		99693F5D20249FF600861356 /* MathOps.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MathOps.cpp; sourceTree = "<group>"; };
 		99693F5E20249FF600861356 /* ProjOps.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProjOps.cpp; sourceTree = "<group>"; };
 		99B030CD2017F40E009D624D /* ofxMoon.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ofxMoon.h; sourceTree = "<group>"; };
 		99B030CE2017F600009D624D /* shaders */ = {isa = PBXFileReference; lastKnownFileType = folder; name = shaders; path = bin/data/shaders; sourceTree = SOURCE_ROOT; };
+		99B8AFCE202F5A5B00CF0D4E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		99B8AFCF202F5A6700CF0D4E /* astro.i */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c.preprocessed; path = astro.i; sourceTree = "<group>"; };
+		99B8AFD0202F5A6F00CF0D4E /* setup.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = setup.py; sourceTree = "<group>"; };
+		99B8AFD2202F5A7C00CF0D4E /* AstroOps.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = AstroOps.py; sourceTree = "<group>"; };
+		99B8AFD3202F5A7C00CF0D4E /* TimeOps.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = TimeOps.py; sourceTree = "<group>"; };
+		99B8AFD4202F5A7C00CF0D4E /* MathOps.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = MathOps.py; sourceTree = "<group>"; };
+		99C613E7203047CD00CFBF3C /* Polar.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Polar.cpp; sourceTree = "<group>"; };
+		99C613E8203047CD00CFBF3C /* Polar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Polar.h; sourceTree = "<group>"; };
 		AB789C7390A63D914EC27482 /* pread.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = pread.h; path = src/GeoLoc/src/pread.h; sourceTree = SOURCE_ROOT; };
 		CDD2F3877CC7A8946674BE9B /* ofxBody.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofxBody.cpp; path = src/ofxBody.cpp; sourceTree = SOURCE_ROOT; };
 		D58DCB2C0AEFDE6171E29540 /* Syphon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Syphon.framework; path = ../../../addons/ofxSyphon/libs/Syphon/lib/osx/Syphon.framework; sourceTree = "<group>"; };
@@ -242,6 +251,10 @@
 		99693F3820249FF600861356 /* Astro */ = {
 			isa = PBXGroup;
 			children = (
+				99B8AFCE202F5A5B00CF0D4E /* README.md */,
+				99B8AFCF202F5A6700CF0D4E /* astro.i */,
+				99B8AFD0202F5A6F00CF0D4E /* setup.py */,
+				99B8AFD1202F5A7C00CF0D4E /* test */,
 				99693F3E20249FF600861356 /* src */,
 			);
 			path = Astro;
@@ -250,16 +263,8 @@
 		99693F3E20249FF600861356 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				99693F5A20249FF600861356 /* Vector.h */,
-				99693F5020249FF600861356 /* Vector.cpp */,
-				99693F5B20249FF600861356 /* EcPoint.h */,
-				99693F5820249FF600861356 /* EcPoint.cpp */,
-				99693F5720249FF600861356 /* EqPoint.h */,
-				99693F5220249FF600861356 /* EqPoint.cpp */,
-				99693F4E20249FF600861356 /* HorPoint.h */,
-				99693F5520249FF600861356 /* HorPoint.cpp */,
-				99693F4120249FF600861356 /* GeoPoint.h */,
-				99693F4020249FF600861356 /* GeoPoint.cpp */,
+				99C613E62030478500CFBF3C /* primitives */,
+				99C613EA2030500A00CFBF3C /* coordinates */,
 				99693F4B20249FF600861356 /* Constellation.h */,
 				99693F4520249FF600861356 /* Constellation.cpp */,
 				99693F4420249FF600861356 /* Observer.h */,
@@ -284,6 +289,42 @@
 				99693F4D20249FF600861356 /* Pluto.cpp */,
 			);
 			path = src;
+			sourceTree = "<group>";
+		};
+		99B8AFD1202F5A7C00CF0D4E /* test */ = {
+			isa = PBXGroup;
+			children = (
+				99B8AFD2202F5A7C00CF0D4E /* AstroOps.py */,
+				99B8AFD3202F5A7C00CF0D4E /* TimeOps.py */,
+				99B8AFD4202F5A7C00CF0D4E /* MathOps.py */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		99C613E62030478500CFBF3C /* primitives */ = {
+			isa = PBXGroup;
+			children = (
+				99C613E8203047CD00CFBF3C /* Polar.h */,
+				99C613E7203047CD00CFBF3C /* Polar.cpp */,
+				99693F5A20249FF600861356 /* Vector.h */,
+				99693F5020249FF600861356 /* Vector.cpp */,
+			);
+			path = primitives;
+			sourceTree = "<group>";
+		};
+		99C613EA2030500A00CFBF3C /* coordinates */ = {
+			isa = PBXGroup;
+			children = (
+				99693F5B20249FF600861356 /* Ecliptic.h */,
+				99693F5820249FF600861356 /* Ecliptic.cpp */,
+				99693F5720249FF600861356 /* Equatorial.h */,
+				99693F5220249FF600861356 /* Equatorial.cpp */,
+				99693F4E20249FF600861356 /* Horizontal.h */,
+				99693F5520249FF600861356 /* Horizontal.cpp */,
+				99693F4120249FF600861356 /* Geodetic.h */,
+				99693F4020249FF600861356 /* Geodetic.cpp */,
+			);
+			path = coordinates;
 			sourceTree = "<group>";
 		};
 		BB4B014C10F69532006C3DED /* addons */ = {
@@ -440,12 +481,12 @@
 				E4B69E210A3A1BDC003C02F2 /* ofApp.cpp in Sources */,
 				1A0066308732F1DCCAD559F8 /* ofxBody.cpp in Sources */,
 				99693F6220249FF600861356 /* Star.cpp in Sources */,
-				99693F6D20249FF600861356 /* EcPoint.cpp in Sources */,
+				99693F6D20249FF600861356 /* Ecliptic.cpp in Sources */,
 				99693F6320249FF600861356 /* Constellation.cpp in Sources */,
 				6AB0ED712485FCCD8DF8F5CB /* pread.c in Sources */,
 				99693F6920249FF600861356 /* Vector.cpp in Sources */,
 				99693F6F20249FF600861356 /* MathOps.cpp in Sources */,
-				99693F6120249FF600861356 /* GeoPoint.cpp in Sources */,
+				99693F6120249FF600861356 /* Geodetic.cpp in Sources */,
 				D6436D62D6F5044D4896AE40 /* GeoLoc.cpp in Sources */,
 				9D440D8ABDB0AF5F262C2607 /* GeoIP_deprecated.c in Sources */,
 				99693F6420249FF600861356 /* Vsop.cpp in Sources */,
@@ -454,15 +495,16 @@
 				24B72081CECCBCF16BCA0736 /* GeoIP.c in Sources */,
 				8D60C222CBD3F869382832E9 /* ofxSyphonServer.mm in Sources */,
 				99693F6A20249FF600861356 /* Body.cpp in Sources */,
-				99693F6B20249FF600861356 /* EqPoint.cpp in Sources */,
+				99693F6B20249FF600861356 /* Equatorial.cpp in Sources */,
 				1F558B76FB3412843DDAA031 /* ofxSyphonClient.mm in Sources */,
 				11DF9AB1B4EAA63E3B190CA0 /* ofxSyphonServerDirectory.mm in Sources */,
-				99693F6C20249FF600861356 /* HorPoint.cpp in Sources */,
+				99693F6C20249FF600861356 /* Horizontal.cpp in Sources */,
 				99693F6820249FF600861356 /* TimeOps.cpp in Sources */,
 				99693F7020249FF600861356 /* ProjOps.cpp in Sources */,
 				99693F6620249FF600861356 /* Observer.cpp in Sources */,
 				99693F6720249FF600861356 /* Pluto.cpp in Sources */,
 				C9109422648B170B07A778CF /* SyphonNameboundClient.m in Sources */,
+				99C613E9203047CD00CFBF3C /* Polar.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

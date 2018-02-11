@@ -2,7 +2,6 @@
 
 #include "GeoLoc/src/GeoLoc.h"
 #include "Astro/src/AstroOps.h"
-#include "Astro/src/EcPoint.h"
 
 #include "TimeOps.h"
 double initial_jd;
@@ -127,18 +126,18 @@ void ofApp::setup(){
         HorLine h1, v1;
         float a = i*step;
         float b = (i+1)*step;
-        h1.A = HorPoint(0., a);
-        h1.B = HorPoint(0., b);
+        h1.A = Horizontal(0., a);
+        h1.B = Horizontal(0., b);
         
-        v1.A = HorPoint(0., a);
+        v1.A = Horizontal(0., a);
         
         if (i%labelstep == 0) {
-            h1.T = HorPoint(10., a+10.);
+            h1.T = Horizontal(10., a+10.);
             h1.text = direction[int(i/labelstep)];
-            v1.B = HorPoint(10., a);
+            v1.B = Horizontal(10., a);
         }
         else {
-            v1.B = HorPoint(5., a);
+            v1.B = Horizontal(5., a);
         }
         
         topoLines.push_back(h1);
@@ -188,7 +187,7 @@ void ofApp::update(){
     // --------------------------------
     
     // Calculate Equinox vector
-    v_equi = toOf( AstroOps::toEquatorial(obs, EcPoint(0.0, 0.0 , 1)).getVector() ).normalize();
+    v_equi = toOf( AstroOps::toEquatorial(obs, Ecliptic(0.0, 0.0 , 1)).getVector() ).normalize();
     
     // Equatorial North, Vernal Equinox and Summer Solstice
 
