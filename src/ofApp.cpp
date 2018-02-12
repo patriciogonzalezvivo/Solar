@@ -126,18 +126,18 @@ void ofApp::setup(){
         HorLine h1, v1;
         float a = i*step;
         float b = (i+1)*step;
-        h1.A = Horizontal(0., a);
-        h1.B = Horizontal(0., b);
+        h1.A = Horizontal(0., a, DEGS);
+        h1.B = Horizontal(0., b, DEGS);
         
-        v1.A = Horizontal(0., a);
+        v1.A = Horizontal(0., a, DEGS);
         
         if (i%labelstep == 0) {
-            h1.T = Horizontal(10., a+10.);
+            h1.T = Horizontal(10., a+10., DEGS);
             h1.text = direction[int(i/labelstep)];
-            v1.B = Horizontal(10., a);
+            v1.B = Horizontal(10., a, DEGS);
         }
         else {
-            v1.B = Horizontal(5., a);
+            v1.B = Horizontal(5., a, DEGS);
         }
         
         topoLines.push_back(h1);
@@ -187,7 +187,7 @@ void ofApp::update(){
     // --------------------------------
     
     // Calculate Equinox vector
-    v_equi = toOf( AstroOps::toEquatorial(obs, Ecliptic(0.0, 0.0 , 1)).getVector() ).normalize();
+    v_equi = toOf( AstroOps::toEquatorial(obs, Ecliptic(0.0, 0.0 , 1, RADS)).getVector() ).normalize();
     
     // Equatorial North, Vernal Equinox and Summer Solstice
 
@@ -450,7 +450,7 @@ void ofApp::draw(){
     
 #ifdef SUN_HORIZ
     ofSetColor(palette[3], 250);
-    if (sun.getHorizontal().getAltitud() > 0) {
+    if (sun.getHorizontal().getAltitud(RADS) > 0) {
         ofPoint toSun = toOf(sun.getHorizontalVector()) * scale;
         ofDrawLine(ofPoint(0.), toSun);
 #ifdef TOPO_LABELS
@@ -461,7 +461,7 @@ void ofApp::draw(){
     
 #ifdef MOON_HORIZ
     ofSetColor(palette[3], 250);
-    if (moon.getHorizontal().getAltitud() > 0) {
+    if (moon.getHorizontal().getAltitud(RADS) > 0) {
         ofPoint toMoon = toOf(moon.getHorizontalVector()) * 20 * scale;
         ofDrawLine(ofPoint(0.), toMoon);
 #ifdef TOPO_LABELS
@@ -474,7 +474,7 @@ void ofApp::draw(){
     ofSetColor(palette[3], 100);
     for ( int i = 0; i < planets.size(); i++) {
         if (planets[i].getBodyId() != EARTH &&
-            planets[i].getHorizontal().getAltitud() > 0) {
+            planets[i].getHorizontal().getAltitud(RADS) > 0) {
             ofPoint toPlanet = toOf(planets[i].getHorizontalVector()) * scale;
             ofDrawLine(ofPoint(0.), toPlanet);
 #ifdef TOPO_LABELS
