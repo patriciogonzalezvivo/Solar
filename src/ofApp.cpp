@@ -326,6 +326,7 @@ void ofApp::draw(){
 #endif
 
 #ifdef BODIES_ECLIP_GEO
+    
     // Check that Geocentric Vector to planets match
     ofSetColor(100,100);
     for ( int i = 0; i < planets.size(); i++) {

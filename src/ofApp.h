@@ -15,11 +15,11 @@
 #include "ofxBody.h"
 #include "ofxMoon.h"
 
-//#define TIME_ANIMATION 4.0
-#define TIME_ANIMATION .015
+#define TIME_ANIMATION 4.0
+//#define TIME_ANIMATION .015
 //#define TIME_MANUAL
 
-//#define BODIES_TRAIL
+#define BODIES_TRAIL
 #define HUD_LINES
 #define HELIO_ARROW
 //#define MOON_PHASES
