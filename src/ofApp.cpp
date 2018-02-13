@@ -74,13 +74,12 @@ void ofApp::setup(){
     scale = 100.;
     
     // Location
-    geoLoc(lng, lat, ofToDataPath(GEOIP_DB), ofToDataPath(GEOLOC_FILE));
+    geoLoc(lng, lat, ofToDataPath(GEOLOC_FILE));
     obs = Observer(lng, lat);
     loc = ofQuaternion(-lat, ofPoint(1., 0., 0.)) * ofQuaternion(lng-180, ofPoint(0., 1., 0.)) * ofPoint(0.,0.,2.);
     
     // Time
     initial_jd = obs.getJD();
-//    initial_jd = TimeOps::toJD(TimeOps::getCurrentSeconds());
     
     // Bodies
     BodyId planets_names[] = { MERCURY, VENUS, EARTH, MARS, JUPITER, SATURN, URANUS, NEPTUNE, PLUTO, LUNA };

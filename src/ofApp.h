@@ -4,7 +4,6 @@
 
 #include "ofxSyphon.h"
 
-#define GEOIP_DB "GeoLiteCity.dat"
 #define GEOLOC_FILE "geoLoc.csv"
 
 #include "Astro/src/Observer.h"
@@ -15,7 +14,7 @@
 #include "ofxBody.h"
 #include "ofxMoon.h"
 
-#define TIME_ANIMATION 4.0
+//#define TIME_ANIMATION 4.0
 //#define TIME_ANIMATION .015
 //#define TIME_MANUAL
 
