@@ -4,7 +4,6 @@
 #include "Astro/src/AstroOps.h"
 
 #include "TimeOps.h"
-double initial_jd;
 
 const std::string month_names[] = { "ENE", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC" };
 
@@ -79,7 +78,8 @@ void ofApp::setup(){
     loc = ofQuaternion(-lat, ofPoint(1., 0., 0.)) * ofQuaternion(lng-180, ofPoint(0., 1., 0.)) * ofPoint(0.,0.,2.);
     
     // Time
-    initial_jd = obs.getJD();
+    time_offset = 0.;
+    time_play = false;
     
     // Bodies
     BodyId planets_names[] = { MERCURY, VENUS, EARTH, MARS, JUPITER, SATURN, URANUS, NEPTUNE, PLUTO, LUNA };
@@ -143,8 +143,6 @@ void ofApp::setup(){
         topoLines.push_back(v1);
     }
 #endif
-    
-    T = X = Y = Z = 0;
 }
 
 //--------------------------------------------------------------
@@ -152,15 +150,11 @@ void ofApp::update(){
 
     // TIME CALCULATIONS
     // --------------------------------
-#ifdef TIME_ANIMATION
-    obs.setJD(initial_jd + ofGetElapsedTimef() * TIME_ANIMATION);
-#else
-#ifdef TIME_MANUAL
-    obs.setJD(initial_jd + T);
-#else
-    obs.setJD(TimeOps::now());
-#endif
-#endif
+    if (time_play) {
+        time_offset += TIME_STEP;
+    }
+
+    obs.setJD(TimeOps::now(UTC) + time_offset);
     
     TimeOps::toDMY(obs.getJD(), day, month, year);
     date = TimeOps::formatDateTime(obs.getJD(), Y_MON_D);
@@ -210,7 +204,7 @@ void ofApp::update(){
     
     // Equinoxes & Solstices
     if (abs(toEarth.dot(v_equi)) > .9999995 && !bWriten) {
-        Line newLine;
+        SrcLine newLine;
         newLine.A = planets[2].m_helioC;
         newLine.B = toEarth * 90.;
 
@@ -221,7 +215,7 @@ void ofApp::update(){
         bWriten = true;
     }
     else if (abs(toEarth.dot(v_equi)) < .001 && !bWriten) {
-        Line newLine;
+        SrcLine newLine;
         newLine.A = planets[2].m_helioC;
         newLine.B = toEarth * 90.;
         
@@ -249,7 +243,7 @@ void ofApp::update(){
     }
     else if (month != prevMonth && int(day) == 1) {
         
-        Line newLine;
+        SrcLine newLine;
         newLine.A = toEarth * 80.;
         newLine.B = toEarth * 90.;
         
@@ -261,7 +255,7 @@ void ofApp::update(){
     else if (int(day) != int(prevDay)) {
         int dow = TimeOps::toDOW( obs.getJD() );
         
-        Line newLine;
+        SrcLine newLine;
 
         if (dow == 0) {
             newLine.A = toEarth * 82.5;
@@ -490,11 +484,13 @@ void ofApp::draw(){
         ofPoint a = toOf(topoLines[i].A.getVector());
         ofPoint b = toOf(topoLines[i].B.getVector());
         
+#ifdef TOPO_HUD_LABLES
         if (topoLines[i].text != "") {
             ofSetColor(palette[4]);
             ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
             ofDrawBitmapString (topoLines[i].text, toOf(topoLines[i].T.getVector()));
         }
+#endif
         
         ofDrawLine(a, b);
     }
@@ -565,59 +561,27 @@ void ofApp::draw(){
 
     // Share screen through Syphon
     syphon.publishScreen();
+    
+#ifdef FPS_DEBUG
+    ofDrawBitmapString(ofToString(ofGetFrameRate()), 5, 15);
+#endif
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
     
     if ( key == 'r' ) {
-        T -= 0.001;
-        cout << "T: " << T << endl;
+        time_offset -= TIME_STEP;
     }
     else if ( key == 'f' ) {
-        T += 0.001;
-        cout << "T: " << T << endl;
+        time_offset += TIME_STEP;
     }
     else if ( key == 'v' ) {
-        T = 0;
-        cout << "T: " << T << endl;
+        time_offset = 0;
     }
-//    else if ( key == 'q' ) {
-//        X--;
-//        cout << "X: " << X << endl;
-//    }
-//    else if ( key == 'a' ) {
-//        X++;
-//        cout << "X: " << X << endl;
-//    }
-//    else if ( key == 'z' ) {
-//        X = 0;
-//        cout << "X: " << X << endl;
-//    }
-//    else if ( key == 'w' ) {
-//        Y--;
-//        cout << "Y: " << Y << endl;
-//    }
-//    else if ( key == 's' ) {
-//        Y++;
-//        cout << "Y: " << Y << endl;
-//    }
-//    else if ( key == 'x' ) {
-//        Y = 0;
-//        cout << "Y: " << Y << endl;
-//    }
-//    else if ( key == 'e' ) {
-//        Z--;
-//        cout << "Z: " << Z << endl;
-//    }
-//    else if ( key == 'd' ) {
-//        Z++;
-//        cout << "Z: " << Z << endl;
-//    }
-//    else if ( key == 'c' ) {
-//        Z = 0;
-//        cout << "Z: " << Z << endl;
-//    }
+    else if ( key == 'p' ) {
+        time_play = !time_play;
+    }
     else {
         cam.setDistance(10);
     }

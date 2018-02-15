@@ -14,9 +14,7 @@
 #include "ofxBody.h"
 #include "ofxMoon.h"
 
-//#define TIME_ANIMATION 4.0
-//#define TIME_ANIMATION .015
-//#define TIME_MANUAL
+#define TIME_STEP .015
 
 #define BODIES_TRAIL
 #define HUD_LINES
@@ -37,11 +35,13 @@
 #define TOPO_ARROW
 #define TOPO_DISK
 #define TOPO_HUD
+//#define TOPO_HUD_LABLES
 //#define TOPO_LABELS
 
 //#define DEBUG_AXIS
+#define DEBUG_FPS
 
-struct Line {
+struct SrcLine {
     ofPoint A;
     ofPoint B;
     ofPoint T;
@@ -80,6 +80,7 @@ public:
     // Place
     double          lng, lat;
     ofPoint         loc;
+    
     // Time
     std::string     date;
     std::string     time;
@@ -121,12 +122,13 @@ public:
     // Equatorial
     ofPoint         v_equi;
     
-    // Horizontal
-    float           X,Y,Z, T;
+    // Animation
+    float           time_offset;
+    bool            time_play;
 
     // HUD
     // -----------------------
-    vector<Line>    lines;
+    vector<SrcLine> lines;
 #ifdef TOPO_HUD
     vector<HorLine> topoLines;
 #endif
