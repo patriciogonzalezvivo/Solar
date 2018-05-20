@@ -1,1 +1,1 @@
-ofxSyphon
+ofxSmartShader

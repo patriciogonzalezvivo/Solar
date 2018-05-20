@@ -1,13 +1,9 @@
-#version 150
-
-in vec4 v_position;
-in vec4 v_color;
-in vec3 v_normal;
-in vec2 v_texcoord;
+varying vec4 v_position;
+varying vec4 v_color;
+varying vec3 v_normal;
+varying vec2 v_texcoord;
 
 uniform sampler2D u_diffuse;
-
-out vec4 fragColor;
 
 void main () {
     vec3 color = vec3(1., 0., 0.);
@@ -20,5 +16,5 @@ void main () {
     color *= .5;
     color += .25;
     
-    fragColor = vec4(color, 1.);
+    gl_FragColor = vec4(color, 1.);
 }

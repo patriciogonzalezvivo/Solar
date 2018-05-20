@@ -31,7 +31,9 @@ void ofxBody::drawTrail(ofFloatColor _color) {
     
     if ( m_trail.size() == 0) {
         m_trail.addVertex(m_helioC);
-    } else if ( m_trail[m_trail.size()-1] != m_helioC ) {
+    } else if ( m_trail[m_trail.size()-1].x != m_helioC.x ||
+                m_trail[m_trail.size()-1].y != m_helioC.y ||
+                m_trail[m_trail.size()-1].z != m_helioC.z ) {
         m_trail.addVertex(m_helioC);
     }
     m_trail.draw();

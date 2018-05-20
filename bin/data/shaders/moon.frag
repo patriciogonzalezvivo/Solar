@@ -1,5 +1,3 @@
-#version 150
-
 #define TAU 6.283185307179586
 #define ONE_OVER_TAU .159154943
 #define PI 3.1415926535
@@ -7,11 +5,9 @@
 
 uniform float u_synodic_day;
 
-in vec4 v_position;
-in vec4 v_color;
-in vec2 v_texcoord;
-
-out vec4 fragColor;
+varying vec4 v_position;
+varying vec4 v_color;
+varying vec2 v_texcoord;
 
 vec2 sphereCoords(in vec2 _st, in vec3 _norm) {
     vec3 vertPoint = _norm;
@@ -44,5 +40,5 @@ void main () {
     color.rgb = mix(vec3(.1), vec3(1.), diffuse);
     color.a = alpha;
     
-    fragColor = color;
+    gl_FragColor = color;
 }
