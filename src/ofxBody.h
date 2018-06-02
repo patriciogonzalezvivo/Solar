@@ -18,10 +18,10 @@ public:
     void drawTrail(ofFloatColor _color);
     void drawSphere(ofFloatColor _color);
     
-    ofPoint getGeoPosition();
-    ofPoint getHelioPosition();
+    glm::vec3   getGeoPosition(UNIT_TYPE _type);
+    glm::vec3   getHelioPosition(UNIT_TYPE _type);
     
-    ofPoint     m_helioC;
+    glm::vec3   m_helioC;
     
 protected:
     ofPolyline  m_trail;

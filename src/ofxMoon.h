@@ -27,6 +27,6 @@ public:
     }
     
 protected:
-    ofPoint     m_position;
+    glm::vec3   m_position;
     float       m_phase;
 };

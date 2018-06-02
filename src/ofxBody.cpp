@@ -16,14 +16,14 @@ ofxBody::ofxBody(BodyId _planet, float _size) {
     m_size = _size;
 }
 
-ofPoint ofxBody::getGeoPosition() {
-    Vector gPos = getEclipticGeocentric().getVector();
-    return ofPoint(gPos.x, gPos.y, gPos.z);
+glm::vec3 ofxBody::getGeoPosition(UNIT_TYPE _type) {
+    Vector gPos = getEclipticGeocentric().getVector(_type);
+    return glm::vec3(gPos.x, gPos.y, gPos.z);
 }
 
-ofPoint ofxBody::getHelioPosition() {
-    Vector hPos = getEclipticHeliocentric().getVector();
-    return ofPoint(hPos.x, hPos.y, hPos.z);
+glm::vec3 ofxBody::getHelioPosition(UNIT_TYPE _type) {
+    Vector hPos = getEclipticHeliocentric().getVector(_type);
+    return glm::vec3(hPos.x, hPos.y, hPos.z);
 }
 
 void ofxBody::drawTrail(ofFloatColor _color) {

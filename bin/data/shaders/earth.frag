@@ -8,8 +8,6 @@ uniform sampler2D u_diffuse;
 void main () {
     vec3 color = vec3(1., 0., 0.);
     vec2 st = v_texcoord;
-//    st.x = 1.-st.x;
-    st.y = 1.-st.y;
     
 //    color = v_normal * .5 + .5;
     color = texture(u_diffuse, st).rgb;

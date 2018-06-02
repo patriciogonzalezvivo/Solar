@@ -6,9 +6,10 @@
 #define GEOLOC_FILE "geoLoc.csv"
 
 #include "Astro/src/Observer.h"
-#include "Astro/src/Luna.h"
 #include "Astro/src/Star.h"
 #include "Astro/src/Constellation.h"
+#include "Astro/src/Luna.h"
+#include "Astro/src/models/SGP4.h"
 
 #include "ofxBody.h"
 #include "ofxMoon.h"
@@ -19,17 +20,20 @@
 
 #define TIME_STEP .015
 
+#define SATELITES
+
 #define BODIES_TRAIL
+#define SATELITES_TRAIL
 #define HUD_LINES
 #define HELIO_ARROW
 //#define MOON_PHASES
 
 #define BODIES_ECLIP_HELIO
 //#define BODIES_ECLIP_GEO
-#define BODIES_EQUAT
-#define BODIES_HORIZ
-#define SUN_HORIZ
-#define MOON_HORIZ
+//#define BODIES_EQUAT
+//#define BODIES_HORIZ
+//#define SUN_HORIZ
+//#define MOON_HORIZ
 
 #define EQUAT_DIR
 #define EQUAT_DISK
@@ -42,7 +46,7 @@
 //#define TOPO_LABELS
 
 //#define DEBUG_AXIS
-#define DEBUG_FPS
+//#define DEBUG_FPS
 
 struct SrcLine {
     ofPoint A;
@@ -107,6 +111,7 @@ public:
     // MOON
     // -----------------------
     ofxBody         moon;
+    float           moonScaleFactor; // for the distance
 #ifdef MOON_PHASES
     ofxSmartShader  moon_shader;
     int             moon_prevPhase;
@@ -116,6 +121,8 @@ public:
     
     // EART
     // -----------------------
+    float           earthSize;
+    float           earthScaleFactor;
 #ifdef TOPO_SHADER
     ofTexture       earth_texture;
     ofxSmartShader  earth_shader;
@@ -138,4 +145,9 @@ public:
     vector<HorLine> topoLines;
 #endif
     ofVboMesh       billboard;
+
+#ifdef SATELITES
+    SGP4            iss;
+#endif
+    
 };

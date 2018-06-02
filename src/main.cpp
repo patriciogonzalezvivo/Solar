@@ -3,7 +3,6 @@
 
 //========================================================================
 int main( ){
-
 #ifdef TARGET_OPENGLES
     ofGLESWindowSettings settings;
     settings.setGLESVersion(2);

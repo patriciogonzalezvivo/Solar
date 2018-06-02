@@ -16,8 +16,8 @@ const ofFloatColor palette[] = {
     ofFloatColor(0.996, 1.000, 1.000)
 };
 
-ofPoint toOf(const Vector &_ve) {
-    return ofPoint(_ve.x, _ve.y, _ve.z);
+glm::vec3 toOf(const Vector &_ve) {
+    return glm::vec3(_ve.x, _ve.y, _ve.z);
 }
 
 void drawString(const std::string &str, int x , int y) {
@@ -85,18 +85,21 @@ void ofApp::setup(){
     time_play = false;
     
     // Bodies
+    earthSize = 1.;
+    earthScaleFactor = ((earthSize * AstroOps::AU_TO_KM)/AstroOps::EARTH_EQUATORIAL_RADIUS_KM);
     BodyId planets_names[] = { MERCURY, VENUS, EARTH, MARS, JUPITER, SATURN, URANUS, NEPTUNE, PLUTO, LUNA };
-    float planets_sizes[] = { 0.0561, 0.1377, 0.17, 0.255, 1.87*.5, 1.615*.5, 0.68, 0.68, 0.0306, 0.0459 };
+    float planets_sizes[] = { 0.561, 1.377, earthSize, 2.55, 18.7*.5, 16.15*.5, 6.8, 6.8, 0.306, 0.459 };
     for (int i = 0; i < 9; i++) {
-        planets.push_back(ofxBody(planets_names[i], planets_sizes[i] * 10.));
+        planets.push_back(ofxBody(planets_names[i], planets_sizes[i]));
     }
     
     sun = Body(SUN);
     
     // Moon
-    moon = ofxBody(LUNA, 0.5);
+    moonScaleFactor = .1;
+    moon = ofxBody(LUNA, (earthSize/AstroOps::EARTH_EQUATORIAL_RADIUS_KM) * Luna::DIAMETER_KM);
 #ifdef MOON_PHASES
-    moon_shader.load("shaders/moon.vert","shaders/moon.frag");
+    moon_shader.load("shaders/moon");
     
     billboard.setMode(OF_PRIMITIVE_TRIANGLE_FAN);
     billboard.addVertex(ofPoint(-1.,-1));
@@ -146,6 +149,14 @@ void ofApp::setup(){
         topoLines.push_back(v1);
     }
 #endif
+    
+    TLE tle = TLE("ISS (ZARYA)",
+                  "1 25544U 98067A   18151.37845806  .00001264  00000-0  26359-4 0  9999",
+                  "2 25544  51.6399 102.5027 0003948 138.3660   3.9342 15.54113216115909");
+    
+    cout << tle << endl;
+    iss.setTLE(tle);
+    
 }
 
 //--------------------------------------------------------------
@@ -172,18 +183,18 @@ void ofApp::update(){
     // Update planets positions
     for ( int i = 0; i < planets.size(); i++) {
         planets[i].compute(obs);
-        planets[i].m_helioC = planets[i].getHelioPosition() * scale;
+        planets[i].m_helioC = planets[i].getHelioPosition(AU) * scale;
     }
     
     // Update moon position (the distance from the earth is not in scale)
     moon.compute(obs);
-    moon.m_helioC = ( moon.getGeoPosition() * 20 * scale ) + ( planets[2].getHelioPosition() * scale);
+    moon.m_helioC = ( moon.getGeoPosition(AU) * (earthScaleFactor * moonScaleFactor) ) + ( planets[2].getHelioPosition(AU) * scale);
 
     // HUDS ELEMENTS
     // --------------------------------
     
     // Calculate Equinox vector
-    v_equi = toOf( AstroOps::toEquatorial(obs, Ecliptic(0.0, 0.0 , 1, RADS)).getVector() ).normalize();
+    v_equi = glm::normalize(toOf( AstroOps::toEquatorial(obs, Ecliptic(0.0, 0.0 , 1, RADS, AU)).getVector() ));
     
     // Equatorial North, Vernal Equinox and Summer Solstice
 
@@ -200,7 +211,7 @@ void ofApp::update(){
     float moon_phase = luna.getAge()/Luna::SYNODIC_MONTH;
     int moon_curPhase = moon_phase * 8;
     if (moon_curPhase != moon_prevPhase) {
-        moons.push_back(ofxMoon(planets[2].m_helioC.getNormalized() * 110., moon_phase));
+        moons.push_back(ofxMoon(glm::normalize(planets[2].m_helioC) * 110., moon_phase));
         moon_prevPhase = moon_curPhase;
     }
 #endif
@@ -279,7 +290,7 @@ void ofApp::update(){
 void ofApp::draw(){
     
     // Set Camera
-    cam.setTarget(planets[2].m_helioC);
+//    cam.setTarget(planets[2].m_helioC);
 
     ofEnableDepthTest();
     ofEnableAlphaBlending();
@@ -287,7 +298,9 @@ void ofApp::draw(){
     // Set Scene
     cam.begin();
     ofPushMatrix();
-
+    
+    ofTranslate(-planets[2].m_helioC);
+    
     // ECLIPTIC HELIOCENTRIC COORD SYSTEM
     // --------------------------------------- begin Heliocentric Ecliptic
 
@@ -334,9 +347,17 @@ void ofApp::draw(){
 #endif
 
     ofPushMatrix();
+    
     // EQUATORIAL COORD SYSTEM
     // --------------------------------------- begin Equatorial
-    ofRotateX(ofRadToDeg(-obs.getObliquity()));
+    ofRotateXRad(-obs.getObliquity());
+    
+    
+    //  SATELISTES
+    //  ---------------------------------------
+    glm::vec3 iss_of = toOf(iss.getECI(obs.getJD()).getPosition(AU) * earthScaleFactor);
+    ofSetColor(255, 0, 0);
+    ofDrawSphere(iss_of, .05);
     
 #ifdef DEBUG_AXIS
     ofDrawAxis(7);
@@ -364,8 +385,8 @@ void ofApp::draw(){
     ofSetColor(palette[1]);
     for ( int i = 0; i < planets.size(); i++) {
         if (planets[i].getBodyId() != EARTH ) {
-            ofPoint toPlanet = toOf(planets[i].getEquatorialVector()) * scale;
-            ofDrawLine(ofPoint(0.), toPlanet);
+            glm::vec3 toPlanet = toOf(planets[i].getEquatorialVector(AU)) * scale;
+            ofDrawLine(glm::vec3(0.), toPlanet);
         }
     }
 #endif
@@ -381,13 +402,13 @@ void ofApp::draw(){
 
     ofPushMatrix();
     // -------------------------------------- begin of Sphere
-    ofRotateX(90);
-    ofRotateY(-90);
+    ofRotateXDeg(90);
+    ofRotateYDeg(-90);
     
     ofPushMatrix();
     // -------------------------------------- begin Hour Angle (Topo)
     // Rotate earth
-    ofRotateY( MathOps::toDegrees(TimeOps::toGreenwichSiderealTime(obs.getJD())) );
+    ofRotateYRad( TimeOps::toGreenwichSiderealTime(obs.getJD()) );
 #ifdef DEBUG_AXIS
     ofDrawAxis(5);
 #endif
@@ -398,24 +419,24 @@ void ofApp::draw(){
     ofSetColor(255);
     earth_shader.begin();
     earth_shader.setUniformTexture("u_diffuse", earth_texture, 0);
-    ofDrawSphere(1.7);
+    ofDrawSphere(earthSize);
     earth_shader.end();
 #else
     ofSetColor(ofFloatColor(.9));
-    ofDrawSphere(1.7);
+    ofDrawSphere(earthSize);
 #endif
 
 #ifdef TOPO_ARROW
     // Location arrow
     ofSetColor(255);
-    ofDrawArrow(ofPoint(0.), loc);
+    ofDrawLine(ofPoint(0.), loc);
 #endif
 
     ofPushMatrix();
     // -------------------------------------- begin location (topo)
-    ofRotateY(lng);
-    ofRotateX(lat);
-    ofTranslate(0., 0., -1.71);
+    ofRotateYDeg(lng);
+    ofRotateXDeg(lat);
+    ofTranslate(0., 0., -earthSize);
     
 #ifdef TOPO_DISK
     // Check that Horizontal Vector to planets match
@@ -424,20 +445,16 @@ void ofApp::draw(){
     
     ofPushMatrix();
     // -------------------------------------- begin Horizontal (topo)xw
-    ofRotateX(90);
+    ofRotateXDeg(90);
     
 #ifdef TOPO_HUD
     drawDial(.8, .05, 4, palette[3]);
 #endif
     
-    ofRotateY(90);
+    ofRotateYDeg(90);
 #ifdef TOPO_HUD
     drawDial(.8, .05, 4, palette[3]);
 #endif
-    
-//    ofRotateX(X);
-//    ofRotateY(Y);
-//    ofRotateZ(Z);
     
 #ifdef DEBUG_AXIS
     ofDrawAxis(2);
@@ -520,7 +537,7 @@ void ofApp::draw(){
     // Draw Earth-Sun Vector
     ofFill();
     ofSetColor(255);
-    ofDrawArrow(toEarth*90., toEarth*95., .2);
+    ofDrawLine(toEarth*90., toEarth*95.);
 
     // Moon
     ofFill();
@@ -584,11 +601,8 @@ void ofApp::keyPressed(int key){
     else if ( key == 'v' ) {
         time_offset = 0;
     }
-    else if ( key == 'p' ) {
-        time_play = !time_play;
-    }
     else {
-        cam.setDistance(10);
+        time_play = !time_play;
     }
 }
 
