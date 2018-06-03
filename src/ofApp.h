@@ -9,18 +9,18 @@
 #include "Astro/src/Star.h"
 #include "Astro/src/Constellation.h"
 #include "Astro/src/Luna.h"
-#include "Astro/src/models/SGP4.h"
 
 #include "ofxBody.h"
 #include "ofxMoon.h"
+#include "ofxSatellite.h"
 
 #ifdef TARGET_OSX
 #include "ofxSyphon.h"
 #endif
 
-#define TIME_STEP .015
+#define TIME_STEP .001
 
-#define SATELITES
+#define SATELLITES
 
 #define BODIES_TRAIL
 #define SATELITES_TRAIL
@@ -103,9 +103,12 @@ public:
     double          scale;
     bool            bWriten;
     
-    // BODIES
+    // SUN
     // -----------------------
     Body            sun;
+    
+    // PLANETS
+    // -----------------------
     vector<ofxBody> planets;
     
     // MOON
@@ -128,6 +131,12 @@ public:
     ofxSmartShader  earth_shader;
 #endif
     
+#ifdef SATELLITES
+    // SATELLITES
+    // -----------------------
+    vector<ofxSatellite> satellites;
+#endif
+    
     // Ecliptical
     ofPoint         toEarth;
     
@@ -145,9 +154,4 @@ public:
     vector<HorLine> topoLines;
 #endif
     ofVboMesh       billboard;
-
-#ifdef SATELITES
-    SGP4            iss;
-#endif
-    
 };

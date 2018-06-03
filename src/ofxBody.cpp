@@ -47,6 +47,6 @@ void ofxBody::drawSphere(ofFloatColor _color) {
         m_bodyId != LUNA &&
         m_bodyId != SUN) {
         ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
-        ofDrawBitmapString(getBodyName(), m_helioC + ofPoint(m_size*2. + 1.5));
+        ofDrawBitmapString(getName(), m_helioC + ofPoint(m_size*2. + 1.5));
     }
 }

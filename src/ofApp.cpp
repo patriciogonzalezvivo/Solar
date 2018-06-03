@@ -2,6 +2,7 @@
 
 #include "GeoLoc/src/GeoLoc.h"
 #include "Astro/src/AstroOps.h"
+#include "Astro/src/models/TLE.h"
 
 #include "TimeOps.h"
 
@@ -84,15 +85,11 @@ void ofApp::setup(){
     time_offset = 0.;
     time_play = false;
     
-    // Bodies
-    earthSize = 1.;
+    // Earth
+    earthSize = 1.7;
     earthScaleFactor = ((earthSize * AstroOps::AU_TO_KM)/AstroOps::EARTH_EQUATORIAL_RADIUS_KM);
-    BodyId planets_names[] = { MERCURY, VENUS, EARTH, MARS, JUPITER, SATURN, URANUS, NEPTUNE, PLUTO, LUNA };
-    float planets_sizes[] = { 0.561, 1.377, earthSize, 2.55, 18.7*.5, 16.15*.5, 6.8, 6.8, 0.306, 0.459 };
-    for (int i = 0; i < 9; i++) {
-        planets.push_back(ofxBody(planets_names[i], planets_sizes[i]));
-    }
     
+    // Sun
     sun = Body(SUN);
     
     // Moon
@@ -115,6 +112,27 @@ void ofApp::setup(){
     billboard.addTexCoord(ofVec2f(1.,1.));
     billboard.addColor(ofFloatColor(1.));
     luna = Luna();
+#endif
+    
+    // Planets
+    BodyId planets_names[] = { MERCURY, VENUS, EARTH, MARS, JUPITER, SATURN, URANUS, NEPTUNE, PLUTO, LUNA };
+    float planets_sizes[] = { 0.561, 1.377, earthSize, 2.55, 18.7*.5, 16.15*.5, 6.8, 6.8, 0.306, 0.459 };
+    for (int i = 0; i < 9; i++) {
+        planets.push_back(ofxBody(planets_names[i], planets_sizes[i]));
+    }
+    
+#ifdef SATELLITES
+    // Satellites
+    TLE sats[] = { TLE("ISS",
+                       "1 25544U 98067A   18151.37845806  .00001264  00000-0  26359-4 0  9999",
+                       "2 25544  51.6399 102.5027 0003948 138.3660   3.9342 15.54113216115909")
+    };
+    
+    for (int i = 0; i < 1; i++) {
+        cout << sats[i].getName() << endl;
+        satellites.push_back(ofxSatellite(sats[i], ofFloatColor(1.,0.,0.), 0.05));
+    }
+    
 #endif
     
 #ifdef TOPO_SHADER
@@ -148,15 +166,7 @@ void ofApp::setup(){
         topoLines.push_back(h1);
         topoLines.push_back(v1);
     }
-#endif
-    
-    TLE tle = TLE("ISS (ZARYA)",
-                  "1 25544U 98067A   18151.37845806  .00001264  00000-0  26359-4 0  9999",
-                  "2 25544  51.6399 102.5027 0003948 138.3660   3.9342 15.54113216115909");
-    
-    cout << tle << endl;
-    iss.setTLE(tle);
-    
+#endif    
 }
 
 //--------------------------------------------------------------
@@ -188,8 +198,16 @@ void ofApp::update(){
     
     // Update moon position (the distance from the earth is not in scale)
     moon.compute(obs);
-    moon.m_helioC = ( moon.getGeoPosition(AU) * (earthScaleFactor * moonScaleFactor) ) + ( planets[2].getHelioPosition(AU) * scale);
+    moon.m_helioC = ( moon.getGeoPosition(AU) * (earthScaleFactor * moonScaleFactor) ) + (planets[2].getHelioPosition(AU) * scale);
 
+    #ifdef SATELLITES
+    for ( int i = 0; i < satellites.size(); i++) {
+        satellites[i].compute(obs);
+        satellites[i].m_geoC = toOf(satellites[i].getECI().getPosition(AU) * earthScaleFactor);
+        satellites[i].m_helioC = satellites[i].m_geoC + planets[2].getHelioPosition(AU) * scale;
+    }
+    #endif
+    
     // HUDS ELEMENTS
     // --------------------------------
     
@@ -316,7 +334,7 @@ void ofApp::draw(){
 #ifdef BODIES_TRAIL
         planets[i].drawTrail(ofFloatColor(.5));
 #endif
-        if (planets[i].getBodyId() != EARTH) {
+        if (planets[i].getId() != EARTH) {
             planets[i].drawSphere(ofFloatColor(.9));
 #ifdef BODIES_ECLIP_HELIO
             ofSetColor(120, 100);
@@ -324,6 +342,17 @@ void ofApp::draw(){
 #endif
         }
     }
+    
+#ifdef SATELLITES
+    //  SATELLITES
+    //  ---------------------------------------
+    for (int i = 0; i < satellites.size(); i++) {
+#ifdef BODIES_TRAIL
+        satellites[i].drawHeliocentricTrail(palette[4]);
+#endif
+        satellites[i].drawSphere();
+    }
+#endif
 
     ofPushMatrix();
 
@@ -345,19 +374,12 @@ void ofApp::draw(){
         }
     }
 #endif
-
+    
     ofPushMatrix();
     
     // EQUATORIAL COORD SYSTEM
     // --------------------------------------- begin Equatorial
     ofRotateXRad(-obs.getObliquity());
-    
-    
-    //  SATELISTES
-    //  ---------------------------------------
-    glm::vec3 iss_of = toOf(iss.getECI(obs.getJD()).getPosition(AU) * earthScaleFactor);
-    ofSetColor(255, 0, 0);
-    ofDrawSphere(iss_of, .05);
     
 #ifdef DEBUG_AXIS
     ofDrawAxis(7);
