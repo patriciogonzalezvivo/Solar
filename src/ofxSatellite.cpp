@@ -11,9 +11,8 @@ ofxSatellite::ofxSatellite() {
     m_bodyId = NAB;
 }
 
-ofxSatellite::ofxSatellite(const TLE& _tle, ofFloatColor _color, float _size) {
+ofxSatellite::ofxSatellite(const TLE& _tle, float _size) {
     setTLE(_tle);
-    m_color = _color;
     m_size = _size;
 }
 
@@ -43,11 +42,22 @@ void ofxSatellite::drawHeliocentricTrail(ofFloatColor _color) {
     m_helioTrail.draw();
 }
 
-void ofxSatellite::drawSphere() {
-    ofSetColor(m_color);
-    ofDrawSphere(m_helioC, m_size);
+void ofxSatellite::clearTale() {
+    m_helioTrail.clear();
+    m_geoTrail.clear();
+}
+
+void ofxSatellite::draw(ofFloatColor _color) {
+    ofPushMatrix();
+    ofTranslate(m_helioC);
+    ofSetColor(_color);
+    ofDrawBox(m_size);
     
-    ofSetColor(200);
+    glm::vec3 fromEarth = m_geoC * 0.25;
+    ofSetColor(170);
+    ofDrawLine(ofPoint(0.0), fromEarth);
+    ofSetColor(250);
     ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
-    ofDrawBitmapString(getName(), m_helioC + ofPoint(m_size*2. + .2));
+    ofDrawBitmapString(getName(), fromEarth + m_size);
+    ofPopMatrix();
 }

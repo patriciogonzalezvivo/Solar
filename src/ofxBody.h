@@ -16,7 +16,9 @@ public:
     ofxBody(BodyId _planet, float _size);
     
     void drawTrail(ofFloatColor _color);
-    void drawSphere(ofFloatColor _color);
+    void draw(ofFloatColor _color);
+    
+    void clearTale();
     
     glm::vec3   getGeoPosition(UNIT_TYPE _type);
     glm::vec3   getHelioPosition(UNIT_TYPE _type);

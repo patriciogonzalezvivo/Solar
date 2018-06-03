@@ -74,7 +74,7 @@ void ofApp::setup(){
 
     cam.setPosition(-71.8425, 80.3674, 4.14539);
     bWriten = false;
-    scale = 100.;
+    scale = 500.;
     
     // Location
     geoLoc(lng, lat, ofToDataPath(GEOLOC_FILE));
@@ -83,6 +83,7 @@ void ofApp::setup(){
     
     // Time
     time_offset = 0.;
+    time_step = 0.0005;
     time_play = false;
     
     // Earth
@@ -93,7 +94,7 @@ void ofApp::setup(){
     sun = Body(SUN);
     
     // Moon
-    moonScaleFactor = .1;
+    moonScaleFactor = .5;
     moon = ofxBody(LUNA, (earthSize/AstroOps::EARTH_EQUATORIAL_RADIUS_KM) * Luna::DIAMETER_KM);
 #ifdef MOON_PHASES
     moon_shader.load("shaders/moon");
@@ -123,14 +124,37 @@ void ofApp::setup(){
     
 #ifdef SATELLITES
     // Satellites
-    TLE sats[] = { TLE("ISS",
-                       "1 25544U 98067A   18151.37845806  .00001264  00000-0  26359-4 0  9999",
-                       "2 25544  51.6399 102.5027 0003948 138.3660   3.9342 15.54113216115909")
+    TLE sats[] = {
+        TLE("ISS",
+            "1 25544U 98067A   18151.37845806  .00001264  00000-0  26359-4 0  9999",
+            "2 25544  51.6399 102.5027 0003948 138.3660   3.9342 15.54113216115909"),
+        TLE("HOBBLE",
+            "1 20580U 90037B   18154.57093887 +.00000421 +00000-0 +14812-4 0  9997",
+            "2 20580 028.4684 205.1197 0002723 359.7851 153.4291 15.09046689343324"),
+        TLE("TERRA",
+            "1 25994U 99068A   18154.24441102 -.00000021  00000-0  53030-5 0  9998",
+            "2 25994  98.2062 229.3170 0001386  97.9233 262.2105 14.57104269981794"),
+        TLE("GOES 16",
+            "1 41866U 16071A   18154.50918000 -.00000249  00000-0  00000-0 0  9998",
+            "2 41866   0.0024 323.4828 0001042 138.0782 258.4507  1.00269829  5675"),
+        TLE("GOES 17",
+            "1 43226U 18022A   18153.55154698 -.00000184 +00000-0 +00000-0 0  9995",
+            "2 43226 000.0506 131.5682 0001494 306.5382 281.9134 01.00275070000988"),
+//        TLE("SUOMI",
+//            "1 37849U 11061A   18154.59022466  .00000019  00000-0  29961-4 0  9994",
+//            "2 37849  98.7369  93.2509 0000790 115.8241 296.7478 14.19549859341951"),
+        TLE("NOAA 19",
+            "1 33591U 09005A   18154.53769778  .00000063  00000-0  59621-4 0  9992",
+            "2 33591  99.1410 132.2940 0014182   9.6985 350.4457 14.12282740480248"),
+        TLE("NOAA 20",
+            "1 43013U 17073A   18154.54421336  .00000003  00000-0  22344-4 0  9998",
+            "2 43013  98.7249  93.0462 0000870  77.9803 282.1471 14.19559862 27975")
     };
     
-    for (int i = 0; i < 1; i++) {
+    int N = sizeof(sats)/sizeof(sats[0]);
+    for (int i = 0; i < N; i++) {
         cout << sats[i].getName() << endl;
-        satellites.push_back(ofxSatellite(sats[i], ofFloatColor(1.,0.,0.), 0.05));
+        satellites.push_back(ofxSatellite(sats[i], 0.05));
     }
     
 #endif
@@ -175,7 +199,7 @@ void ofApp::update(){
     // TIME CALCULATIONS
     // --------------------------------
     if (time_play) {
-        time_offset += TIME_STEP;
+        time_offset += time_step;
     }
 
     obs.setJD(TimeOps::now(UTC) + time_offset);
@@ -335,7 +359,7 @@ void ofApp::draw(){
         planets[i].drawTrail(ofFloatColor(.5));
 #endif
         if (planets[i].getId() != EARTH) {
-            planets[i].drawSphere(ofFloatColor(.9));
+            planets[i].draw(ofFloatColor(.9));
 #ifdef BODIES_ECLIP_HELIO
             ofSetColor(120, 100);
             ofDrawLine(ofPoint(0.), planets[i].m_helioC);
@@ -350,7 +374,7 @@ void ofApp::draw(){
 #ifdef BODIES_TRAIL
         satellites[i].drawHeliocentricTrail(palette[4]);
 #endif
-        satellites[i].drawSphere();
+        satellites[i].draw(ofFloatColor(1.));
     }
 #endif
 
@@ -566,7 +590,7 @@ void ofApp::draw(){
 #ifdef BODIES_TRAIL
     moon.drawTrail(ofFloatColor(.4));
 #endif
-    moon.drawSphere(ofFloatColor(0.6));
+    moon.draw(ofFloatColor(0.6));
 
 #ifdef MOON_PHASES
     // Moon Phases
@@ -615,13 +639,26 @@ void ofApp::draw(){
 void ofApp::keyPressed(int key){
     
     if ( key == 'r' ) {
-        time_offset -= TIME_STEP;
+        time_offset -= time_step;
     }
     else if ( key == 'f' ) {
-        time_offset += TIME_STEP;
+        time_offset += time_step;
+    }
+    if ( key == '-' ) {
+        time_step -= 0.0001;
+    }
+    else if ( key == '=' ) {
+        time_step += 0.0001;
     }
     else if ( key == 'v' ) {
         time_offset = 0;
+        moon.clearTale();
+        for (int i = 0; i < planets.size(); i++){
+            planets[i].clearTale();
+        }
+        for (int i = 0; i < satellites.size(); i++){
+            satellites[i].clearTale();
+        }
     }
     else {
         time_play = !time_play;

@@ -39,7 +39,11 @@ void ofxBody::drawTrail(ofFloatColor _color) {
     m_trail.draw();
 }
 
-void ofxBody::drawSphere(ofFloatColor _color) {
+void ofxBody::clearTale() {
+    m_trail.clear();
+}
+
+void ofxBody::draw(ofFloatColor _color) {
     ofSetColor(_color);
     ofDrawSphere(m_helioC, m_size);
     

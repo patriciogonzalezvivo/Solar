@@ -13,11 +13,13 @@
 class ofxSatellite : public Satellite {
 public:
     ofxSatellite();
-    ofxSatellite(const TLE& _tle, ofFloatColor _color, float _size);
+    ofxSatellite(const TLE& _tle, float _size);
     
     void drawGeocentricTrail(ofFloatColor _color);
     void drawHeliocentricTrail(ofFloatColor _color);
-    void drawSphere();
+    void draw(ofFloatColor _color);
+    
+    void clearTale();
     
     glm::vec3   m_geoC;
     glm::vec3   m_helioC;

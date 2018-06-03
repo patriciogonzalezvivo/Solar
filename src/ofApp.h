@@ -18,14 +18,13 @@
 #include "ofxSyphon.h"
 #endif
 
-#define TIME_STEP .001
-
 #define SATELLITES
 
 #define BODIES_TRAIL
 #define SATELITES_TRAIL
-#define HUD_LINES
-#define HELIO_ARROW
+
+//#define HUD_LINES
+//#define HELIO_ARROW
 //#define MOON_PHASES
 
 #define BODIES_ECLIP_HELIO
@@ -40,8 +39,8 @@
 
 #define TOPO_SHADER
 #define TOPO_ARROW
-#define TOPO_DISK
-#define TOPO_HUD
+//#define TOPO_DISK
+//#define TOPO_HUD
 //#define TOPO_HUD_LABLES
 //#define TOPO_LABELS
 
@@ -145,6 +144,7 @@ public:
     
     // Animation
     float           time_offset;
+    float           time_step;
     bool            time_play;
 
     // HUD
