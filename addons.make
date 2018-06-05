@@ -1,2 +1,1 @@
 ofxSmartShader
-ofxSyphon
