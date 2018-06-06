@@ -67,6 +67,7 @@ void ofApp::setup(){
     ofDisableArbTex();
     ofSetBackgroundColor(0);
     ofSetCircleResolution(36);
+    ofSetVerticalSync(false);
     
 #ifdef TARGET_OSX
     syphon.setName("Solar");
@@ -125,15 +126,12 @@ void ofApp::setup(){
 #ifdef SATELLITES
     // Satellites
     TLE sats[] = {
-        TLE("ISS",
-            "1 25544U 98067A   18151.37845806  .00001264  00000-0  26359-4 0  9999",
-            "2 25544  51.6399 102.5027 0003948 138.3660   3.9342 15.54113216115909"),
-        TLE("HOBBLE",
-            "1 20580U 90037B   18154.57093887 +.00000421 +00000-0 +14812-4 0  9997",
-            "2 20580 028.4684 205.1197 0002723 359.7851 153.4291 15.09046689343324"),
-        TLE("TERRA",
-            "1 25994U 99068A   18154.24441102 -.00000021  00000-0  53030-5 0  9998",
-            "2 25994  98.2062 229.3170 0001386  97.9233 262.2105 14.57104269981794"),
+        // TLE("HOBBLE",
+        //     "1 20580U 90037B   18154.57093887 +.00000421 +00000-0 +14812-4 0  9997",
+        //     "2 20580 028.4684 205.1197 0002723 359.7851 153.4291 15.09046689343324"),
+        // TLE("TERRA",
+        //     "1 25994U 99068A   18154.24441102 -.00000021  00000-0  53030-5 0  9998",
+        //     "2 25994  98.2062 229.3170 0001386  97.9233 262.2105 14.57104269981794"),
         TLE("GOES 16",
             "1 41866U 16071A   18154.50918000 -.00000249  00000-0  00000-0 0  9998",
             "2 41866   0.0024 323.4828 0001042 138.0782 258.4507  1.00269829  5675"),
@@ -143,17 +141,19 @@ void ofApp::setup(){
 //        TLE("SUOMI",
 //            "1 37849U 11061A   18154.59022466  .00000019  00000-0  29961-4 0  9994",
 //            "2 37849  98.7369  93.2509 0000790 115.8241 296.7478 14.19549859341951"),
-        TLE("NOAA 19",
-            "1 33591U 09005A   18154.53769778  .00000063  00000-0  59621-4 0  9992",
-            "2 33591  99.1410 132.2940 0014182   9.6985 350.4457 14.12282740480248"),
-        TLE("NOAA 20",
-            "1 43013U 17073A   18154.54421336  .00000003  00000-0  22344-4 0  9998",
-            "2 43013  98.7249  93.0462 0000870  77.9803 282.1471 14.19559862 27975")
+        // TLE("NOAA 19",
+        //     "1 33591U 09005A   18154.53769778  .00000063  00000-0  59621-4 0  9992",
+        //     "2 33591  99.1410 132.2940 0014182   9.6985 350.4457 14.12282740480248"),
+        // TLE("NOAA 20",
+        //     "1 43013U 17073A   18154.54421336  .00000003  00000-0  22344-4 0  9998",
+        //     "2 43013  98.7249  93.0462 0000870  77.9803 282.1471 14.19559862 27975"),
+        TLE("ISS",
+            "1 25544U 98067A   18151.37845806  .00001264  00000-0  26359-4 0  9999",
+            "2 25544  51.6399 102.5027 0003948 138.3660   3.9342 15.54113216115909")
     };
     
     int N = sizeof(sats)/sizeof(sats[0]);
     for (int i = 0; i < N; i++) {
-        cout << sats[i].getName() << endl;
         satellites.push_back(ofxSatellite(sats[i], 0.05));
     }
     
@@ -190,7 +190,7 @@ void ofApp::setup(){
         topoLines.push_back(h1);
         topoLines.push_back(v1);
     }
-#endif    
+#endif
 }
 
 //--------------------------------------------------------------
@@ -215,7 +215,7 @@ void ofApp::update(){
     sun.compute(obs);
     
     // Update planets positions
-    for ( int i = 0; i < planets.size(); i++) {
+    for ( unsigned int i = 0; i < planets.size(); i++) {
         planets[i].compute(obs);
         planets[i].m_helioC = planets[i].getHelioPosition(AU) * scale;
     }
@@ -225,7 +225,7 @@ void ofApp::update(){
     moon.m_helioC = ( moon.getGeoPosition(AU) * (earthScaleFactor * moonScaleFactor) ) + (planets[2].getHelioPosition(AU) * scale);
 
     #ifdef SATELLITES
-    for ( int i = 0; i < satellites.size(); i++) {
+    for ( unsigned int i = 0; i < satellites.size(); i++) {
         satellites[i].compute(obs);
         satellites[i].m_geoC = toOf(satellites[i].getECI().getPosition(AU) * earthScaleFactor);
         satellites[i].m_helioC = satellites[i].m_geoC + planets[2].getHelioPosition(AU) * scale;
@@ -354,7 +354,7 @@ void ofApp::draw(){
     ofDrawSphere(10);
 
     // Draw Planets and their orbits (HelioCentric)
-    for ( int i = 0; i < planets.size(); i++) {
+    for ( unsigned int i = 0; i < planets.size(); i++) {
 #ifdef BODIES_TRAIL
         planets[i].drawTrail(ofFloatColor(.5));
 #endif
@@ -370,7 +370,7 @@ void ofApp::draw(){
 #ifdef SATELLITES
     //  SATELLITES
     //  ---------------------------------------
-    for (int i = 0; i < satellites.size(); i++) {
+    for (unsigned int i = 0; i < satellites.size(); i++) {
 #ifdef BODIES_TRAIL
         satellites[i].drawHeliocentricTrail(palette[4]);
 #endif
@@ -630,7 +630,7 @@ void ofApp::draw(){
     syphon.publishScreen();
 #endif
     
-#ifdef FPS_DEBUG
+#ifdef DEBUG_FPS
     ofDrawBitmapString(ofToString(ofGetFrameRate()), 5, 15);
 #endif
 }
@@ -653,10 +653,10 @@ void ofApp::keyPressed(int key){
     else if ( key == 'v' ) {
         time_offset = 0;
         moon.clearTale();
-        for (int i = 0; i < planets.size(); i++){
+        for (unsigned int i = 0; i < planets.size(); i++){
             planets[i].clearTale();
         }
-        for (int i = 0; i < satellites.size(); i++){
+        for (unsigned int i = 0; i < satellites.size(); i++){
             satellites[i].clearTale();
         }
     }

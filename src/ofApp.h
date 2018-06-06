@@ -45,7 +45,7 @@
 //#define TOPO_LABELS
 
 //#define DEBUG_AXIS
-//#define DEBUG_FPS
+#define DEBUG_FPS
 
 struct SrcLine {
     ofPoint A;
