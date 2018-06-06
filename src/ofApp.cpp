@@ -67,7 +67,6 @@ void ofApp::setup(){
     ofDisableArbTex();
     ofSetBackgroundColor(0);
     ofSetCircleResolution(36);
-    ofSetVerticalSync(false);
     
 #ifdef TARGET_OSX
     syphon.setName("Solar");
