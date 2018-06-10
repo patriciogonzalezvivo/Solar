@@ -29,7 +29,7 @@
 
 #define BODIES_ECLIP_HELIO
 //#define BODIES_ECLIP_GEO
-//#define BODIES_EQUAT
+#define BODIES_EQUAT
 //#define BODIES_HORIZ
 //#define SUN_HORIZ
 //#define MOON_HORIZ
@@ -39,7 +39,7 @@
 
 #define TOPO_SHADER
 #define TOPO_ARROW
-//#define TOPO_DISK
+#define TOPO_DISK
 //#define TOPO_HUD
 //#define TOPO_HUD_LABLES
 //#define TOPO_LABELS

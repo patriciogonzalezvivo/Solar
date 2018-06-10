@@ -1,7 +1,7 @@
 #include "ofApp.h"
 
 #include "GeoLoc/src/GeoLoc.h"
-#include "Astro/src/AstroOps.h"
+#include "Astro/src/CoordOps.h"
 #include "Astro/src/models/TLE.h"
 
 #include "TimeOps.h"
@@ -88,14 +88,14 @@ void ofApp::setup(){
     
     // Earth
     earthSize = 1.7;
-    earthScaleFactor = ((earthSize * AstroOps::AU_TO_KM)/AstroOps::EARTH_EQUATORIAL_RADIUS_KM);
+    earthScaleFactor = ((earthSize * CoordOps::AU_TO_KM)/CoordOps::EARTH_EQUATORIAL_RADIUS_KM);
     
     // Sun
     sun = Body(SUN);
     
     // Moon
     moonScaleFactor = .5;
-    moon = ofxBody(LUNA, (earthSize/AstroOps::EARTH_EQUATORIAL_RADIUS_KM) * Luna::DIAMETER_KM);
+    moon = ofxBody(LUNA, (earthSize/CoordOps::EARTH_EQUATORIAL_RADIUS_KM) * Luna::DIAMETER_KM);
 #ifdef MOON_PHASES
     moon_shader.load("shaders/moon");
     
@@ -226,7 +226,7 @@ void ofApp::update(){
     #ifdef SATELLITES
     for ( unsigned int i = 0; i < satellites.size(); i++) {
         satellites[i].compute(obs);
-        satellites[i].m_geoC = toOf(satellites[i].getECI().getPosition(AU) * earthScaleFactor);
+        satellites[i].m_geoC = satellites[i].getGeoPosition(AU) * earthScaleFactor;
         satellites[i].m_helioC = satellites[i].m_geoC + planets[2].getHelioPosition(AU) * scale;
     }
     #endif
@@ -235,7 +235,7 @@ void ofApp::update(){
     // --------------------------------
     
     // Calculate Equinox vector
-    v_equi = glm::normalize(toOf( AstroOps::toEquatorial(obs, Ecliptic(0.0, 0.0 , 1, RADS, AU)).getVector() ));
+    v_equi = glm::normalize(toOf( CoordOps::toEquatorial(obs, Ecliptic(0.0, 0.0 , 1, RADS, AU)).getVector() ));
     
     // Equatorial North, Vernal Equinox and Summer Solstice
 
@@ -373,6 +373,10 @@ void ofApp::draw(){
 #ifdef BODIES_TRAIL
         satellites[i].drawHeliocentricTrail(palette[4]);
 #endif
+#ifdef BODIES_ECLIP_HELIO
+        ofSetColor(120, 100);
+        ofDrawLine(ofPoint(0.), satellites[i].m_helioC);
+#endif
         satellites[i].draw(ofFloatColor(1.));
     }
 #endif
@@ -387,15 +391,21 @@ void ofApp::draw(){
 #endif
 
 #ifdef BODIES_ECLIP_GEO
-    
     // Check that Geocentric Vector to planets match
     ofSetColor(100,100);
     for ( int i = 0; i < planets.size(); i++) {
-        if (planets[i].getBodyId() != EARTH ) {
-            ofPoint toPlanet = toOf(planets[i].getEclipticGeocentric().getVector()) * scale;
+        if (planets[i].getId() != EARTH ) {
+            ofPoint toPlanet = toOf(planets[i].getEclipticGeocentric().getVector(AU)) * scale;
             ofDrawLine(ofPoint(0.), toPlanet);
         }
     }
+    
+#ifdef SATELLITES
+    for (unsigned int i = 0; i < satellites.size(); i++) {
+        ofDrawLine(ofPoint(0.), satellites[i].m_geoC);
+    }
+#endif
+    
 #endif
     
     ofPushMatrix();
@@ -429,11 +439,18 @@ void ofApp::draw(){
     // Check that Equatorial Vector to planets match
     ofSetColor(palette[1]);
     for ( int i = 0; i < planets.size(); i++) {
-        if (planets[i].getBodyId() != EARTH ) {
+        if (planets[i].getId() != EARTH ) {
             glm::vec3 toPlanet = toOf(planets[i].getEquatorialVector(AU)) * scale;
             ofDrawLine(glm::vec3(0.), toPlanet);
         }
     }
+    
+#ifdef SATELLITES
+    for (unsigned int i = 0; i < satellites.size(); i++) {
+        ofDrawLine(ofPoint(0.), toOf(satellites[i].getECI().getPosition(AU) * earthScaleFactor ));
+    }
+#endif
+    
 #endif
 
 #ifdef EQUAT_DISK
@@ -532,9 +549,9 @@ void ofApp::draw(){
 #ifdef BODIES_HORIZ
     ofSetColor(palette[3], 100);
     for ( int i = 0; i < planets.size(); i++) {
-        if (planets[i].getBodyId() != EARTH &&
+        if (planets[i].getId() != EARTH &&
             planets[i].getHorizontal().getAltitud(RADS) > 0) {
-            ofPoint toPlanet = toOf(planets[i].getHorizontalVector()) * scale;
+            ofPoint toPlanet = toOf(planets[i].getHorizontalVector(AU)) * scale;
             ofDrawLine(ofPoint(0.), toPlanet);
 #ifdef TOPO_LABELS
             ofDrawBitmapString(planets[i].getBodyName(), toPlanet);
@@ -658,6 +675,9 @@ void ofApp::keyPressed(int key){
         for (unsigned int i = 0; i < satellites.size(); i++){
             satellites[i].clearTale();
         }
+    }
+    else if ( key == 'f') {
+        ofToggleFullscreen();
     }
     else {
         time_play = !time_play;

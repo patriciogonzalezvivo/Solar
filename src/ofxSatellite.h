@@ -21,6 +21,9 @@ public:
     
     void clearTale();
     
+    glm::vec3   getGeoPosition(UNIT_TYPE _type);
+    glm::vec3   getHelioPosition(UNIT_TYPE _type);
+    
     glm::vec3   m_geoC;
     glm::vec3   m_helioC;
     
