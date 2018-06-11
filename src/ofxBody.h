@@ -13,10 +13,10 @@
 class ofxBody : public Body {
 public:
     ofxBody();
-    ofxBody(BodyId _planet, float _size);
+    ofxBody(BodyId _planet);
     
     void drawTrail(ofFloatColor _color);
-    void draw(ofFloatColor _color);
+    void draw(ofFloatColor _color, float _size);
     
     void clearTale();
     
@@ -27,5 +27,4 @@ public:
     
 protected:
     ofPolyline  m_trail;
-    float       m_size;
 };

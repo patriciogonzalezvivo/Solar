@@ -20,33 +20,6 @@
 
 #define SATELLITES
 
-#define BODIES_TRAIL
-#define SATELITES_TRAIL
-
-//#define HUD_LINES
-//#define HELIO_ARROW
-//#define MOON_PHASES
-
-#define BODIES_ECLIP_HELIO
-//#define BODIES_ECLIP_GEO
-#define BODIES_EQUAT
-//#define BODIES_HORIZ
-//#define SUN_HORIZ
-//#define MOON_HORIZ
-
-#define EQUAT_DIR
-#define EQUAT_DISK
-
-#define TOPO_SHADER
-#define TOPO_ARROW
-#define TOPO_DISK
-//#define TOPO_HUD
-//#define TOPO_HUD_LABLES
-//#define TOPO_LABELS
-
-//#define DEBUG_AXIS
-#define DEBUG_FPS
-
 struct SrcLine {
     ofPoint A;
     ofPoint B;
@@ -108,33 +81,38 @@ public:
     
     // PLANETS
     // -----------------------
+    float           planetsSizes[10];
     vector<ofxBody> planets;
     
     // MOON
     // -----------------------
     ofxBody         moon;
-    float           moonScaleFactor; // for the distance
-#ifdef MOON_PHASES
+    float           moonSize;
+    float           moonScaleDistance; // for the distance
     ofxSmartShader  moon_shader;
     int             moon_prevPhase;
     vector<ofxMoon> moons;
     Luna            luna;
-#endif
     
     // EART
     // -----------------------
     float           earthSize;
     float           earthScaleFactor;
-#ifdef TOPO_SHADER
     ofTexture       earth_texture;
     ofxSmartShader  earth_shader;
-#endif
     
 #ifdef SATELLITES
     // SATELLITES
     // -----------------------
+    float           satellitesSize;
     vector<ofxSatellite> satellites;
 #endif
+    
+    // HUD
+    // -----------------------
+    vector<SrcLine> lines;
+    vector<HorLine> topoLines;
+    ofVboMesh       billboard;
     
     // Ecliptical
     ofPoint         toEarth;
@@ -146,12 +124,25 @@ public:
     float           time_offset;
     float           time_step;
     bool            time_play;
-
-    // HUD
-    // -----------------------
-    vector<SrcLine> lines;
-#ifdef TOPO_HUD
-    vector<HorLine> topoLines;
-#endif
-    ofVboMesh       billboard;
+    
+    bool            bHelioCoords;
+    bool            bEclipCoords;
+    bool            bEquatCoords;
+    bool            bHorizCoords;
+    
+    bool            bEquatDir;
+    bool            bEquatDisk;
+    
+    bool            bBodiesTrail;
+    
+    bool            bHudLines;
+    bool            bMoonPhases;
+    
+    bool            bTopoArrow;
+    bool            bTopoDisk;
+    bool            bTopoHud;
+    bool            bTopoHudLables;
+    bool            bTopoLables;
+    
+    bool            bDebugFps;
 };

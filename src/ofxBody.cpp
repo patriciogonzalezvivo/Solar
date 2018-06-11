@@ -11,9 +11,8 @@ ofxBody::ofxBody() {
     m_bodyId = NAB;
 }
 
-ofxBody::ofxBody(BodyId _planet, float _size) {
+ofxBody::ofxBody(BodyId _planet) {
     m_bodyId = _planet;
-    m_size = _size;
 }
 
 glm::vec3 ofxBody::getGeoPosition(UNIT_TYPE _type) {
@@ -43,14 +42,14 @@ void ofxBody::clearTale() {
     m_trail.clear();
 }
 
-void ofxBody::draw(ofFloatColor _color) {
+void ofxBody::draw(ofFloatColor _color, float _size) {
     ofSetColor(_color);
-    ofDrawSphere(m_helioC, m_size);
+    ofDrawSphere(m_helioC, _size);
     
     if (m_bodyId != EARTH &&
         m_bodyId != LUNA &&
         m_bodyId != SUN) {
         ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
-        ofDrawBitmapString(getName(), m_helioC + ofPoint(m_size*2. + 1.5));
+        ofDrawBitmapString(getName(), m_helioC + ofPoint(_size*2. + 1.5));
     }
 }

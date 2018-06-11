@@ -11,9 +11,8 @@ ofxSatellite::ofxSatellite() {
     m_bodyId = NAB;
 }
 
-ofxSatellite::ofxSatellite(const TLE& _tle, float _size) {
+ofxSatellite::ofxSatellite(const TLE& _tle) {
     setTLE(_tle);
-    m_size = _size;
 }
 
 glm::vec3 ofxSatellite::getGeoPosition(UNIT_TYPE _type) {
@@ -57,17 +56,17 @@ void ofxSatellite::clearTale() {
     m_geoTrail.clear();
 }
 
-void ofxSatellite::draw(ofFloatColor _color) {
+void ofxSatellite::draw(ofFloatColor _color, float _size) {
     ofPushMatrix();
     ofTranslate(m_helioC);
     ofSetColor(_color);
-    ofDrawBox(m_size);
+    ofDrawBox(_size);
     
     glm::vec3 fromEarth = m_geoC * 0.25;
     ofSetColor(170);
     ofDrawLine(ofPoint(0.0), fromEarth);
     ofSetColor(250);
     ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
-    ofDrawBitmapString(getName(), fromEarth + m_size);
+    ofDrawBitmapString(getName(), fromEarth + _size);
     ofPopMatrix();
 }

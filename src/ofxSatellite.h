@@ -13,11 +13,11 @@
 class ofxSatellite : public Satellite {
 public:
     ofxSatellite();
-    ofxSatellite(const TLE& _tle, float _size);
+    ofxSatellite(const TLE& _tle);
     
     void drawGeocentricTrail(ofFloatColor _color);
     void drawHeliocentricTrail(ofFloatColor _color);
-    void draw(ofFloatColor _color);
+    void draw(ofFloatColor _color, float _size);
     
     void clearTale();
     
@@ -31,5 +31,4 @@ protected:
     ofFloatColor    m_color;
     ofPolyline      m_geoTrail;
     ofPolyline      m_helioTrail;
-    float           m_size;
 };

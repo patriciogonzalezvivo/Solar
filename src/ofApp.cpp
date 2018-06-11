@@ -79,7 +79,7 @@ void ofApp::setup(){
     // Location
     geoLoc(lng, lat, ofToDataPath(GEOLOC_FILE));
     obs = Observer(lng, lat);
-    loc = ofQuaternion(-lat, ofPoint(1., 0., 0.)) * ofQuaternion(lng-180, ofPoint(0., 1., 0.)) * ofPoint(0.,0.,2.);
+    loc = ofQuaternion(-lat, ofPoint(1., 0., 0.)) * ofQuaternion(lng-180, ofPoint(0., 1., 0.)) * ofPoint(0.,0.,1.);
     
     // Time
     time_offset = 0.;
@@ -94,9 +94,10 @@ void ofApp::setup(){
     sun = Body(SUN);
     
     // Moon
-    moonScaleFactor = .5;
-    moon = ofxBody(LUNA, (earthSize/CoordOps::EARTH_EQUATORIAL_RADIUS_KM) * Luna::DIAMETER_KM);
-#ifdef MOON_PHASES
+    moonScaleDistance = .5;
+    moonSize = (earthSize/CoordOps::EARTH_EQUATORIAL_RADIUS_KM) * Luna::DIAMETER_KM;
+    moon = ofxBody(LUNA);
+    
     moon_shader.load("shaders/moon");
     
     billboard.setMode(OF_PRIMITIVE_TRIANGLE_FAN);
@@ -113,14 +114,22 @@ void ofApp::setup(){
     billboard.addTexCoord(ofVec2f(1.,1.));
     billboard.addColor(ofFloatColor(1.));
     luna = Luna();
-#endif
     
     // Planets
     BodyId planets_names[] = { MERCURY, VENUS, EARTH, MARS, JUPITER, SATURN, URANUS, NEPTUNE, PLUTO, LUNA };
-    float planets_sizes[] = { 0.561, 1.377, earthSize, 2.55, 18.7*.5, 16.15*.5, 6.8, 6.8, 0.306, 0.459 };
     for (int i = 0; i < 9; i++) {
-        planets.push_back(ofxBody(planets_names[i], planets_sizes[i]));
+        planets.push_back(ofxBody(planets_names[i]));
     }
+    
+    planetsSizes[0] = 0.33;
+    planetsSizes[1] = 0.81;
+    planetsSizes[2] = 1.0;
+    planetsSizes[3] = 1.5;
+    planetsSizes[4] = 5.5;
+    planetsSizes[5] = 4.75;
+    planetsSizes[6] = planetsSizes[7] = 4;
+    planetsSizes[8] = 0.18;
+    planetsSizes[9] = 0.27;
     
 #ifdef SATELLITES
     // Satellites
@@ -153,17 +162,14 @@ void ofApp::setup(){
     
     int N = sizeof(sats)/sizeof(sats[0]);
     for (int i = 0; i < N; i++) {
-        satellites.push_back(ofxSatellite(sats[i], 0.05));
+        satellites.push_back(ofxSatellite(sats[i]));
     }
-    
+    satellitesSize = 0.02941176471;
 #endif
     
-#ifdef TOPO_SHADER
     ofLoadImage(earth_texture, "diffuse.png");
     earth_shader.load("shaders/earth");
-#endif
     
-#ifdef TOPO_HUD
     vector<std::string> direction = { "N", "E", "S", "W" };
     int step = 5;
     int total = 360/step;
@@ -189,7 +195,27 @@ void ofApp::setup(){
         topoLines.push_back(h1);
         topoLines.push_back(v1);
     }
-#endif
+    
+    bHelioCoords = false;
+    bEclipCoords = false;
+    bEquatCoords = false;
+    bHorizCoords = false;
+    
+    bEquatDir = false;
+    bEquatDisk = false;
+    
+    bBodiesTrail = false;
+    
+    bHudLines = false;
+    bMoonPhases = false;
+    
+    bTopoArrow = false;
+    bTopoDisk = false;
+    bTopoHud = false;
+    bTopoHudLables = false;
+    bTopoLables = false;
+    
+    bDebugFps = false;
 }
 
 //--------------------------------------------------------------
@@ -221,15 +247,15 @@ void ofApp::update(){
     
     // Update moon position (the distance from the earth is not in scale)
     moon.compute(obs);
-    moon.m_helioC = ( moon.getGeoPosition(AU) * (earthScaleFactor * moonScaleFactor) ) + (planets[2].getHelioPosition(AU) * scale);
+    moon.m_helioC = ( moon.getGeoPosition(AU) * (earthScaleFactor * moonScaleDistance) ) + (planets[2].getHelioPosition(AU) * scale);
 
-    #ifdef SATELLITES
+#ifdef SATELLITES
     for ( unsigned int i = 0; i < satellites.size(); i++) {
         satellites[i].compute(obs);
         satellites[i].m_geoC = satellites[i].getGeoPosition(AU) * earthScaleFactor;
         satellites[i].m_helioC = satellites[i].m_geoC + planets[2].getHelioPosition(AU) * scale;
     }
-    #endif
+#endif
     
     // HUDS ELEMENTS
     // --------------------------------
@@ -244,95 +270,91 @@ void ofApp::update(){
     
     // HUD EVENTS
     // --------------------------------
-    
-#ifdef MOON_PHASES
-    // Moon phases
-    luna.compute(obs);
-//    cout << "Luna: " << luna << endl;
-    float moon_phase = luna.getAge()/Luna::SYNODIC_MONTH;
-    int moon_curPhase = moon_phase * 8;
-    if (moon_curPhase != moon_prevPhase) {
-        moons.push_back(ofxMoon(glm::normalize(planets[2].m_helioC) * 110., moon_phase));
-        moon_prevPhase = moon_curPhase;
-    }
-#endif
-    
-    // Equinoxes & Solstices
-    if (abs(toEarth.dot(v_equi)) > .9999995 && !bWriten) {
-        SrcLine newLine;
-        newLine.A = planets[2].m_helioC;
-        newLine.B = toEarth * 90.;
-
-        newLine.text = "Eq. " + ofToString(int(day),2,'0');
-        newLine.T = toEarth * 104. + ofPoint(0.,0.,2);
-
-        lines.push_back(newLine);
-        bWriten = true;
-    }
-    else if (abs(toEarth.dot(v_equi)) < .001 && !bWriten) {
-        SrcLine newLine;
-        newLine.A = planets[2].m_helioC;
-        newLine.B = toEarth * 90.;
-        
-        newLine.text = "So. " + ofToString(int(day),2,'0');
-        newLine.T = toEarth * 104. + ofPoint(0.,0.,2);
-        
-        lines.push_back(newLine);
-        bWriten = true;
-    }
-    else {
-        bWriten = false;
+    if (bMoonPhases) {
+        // Moon phases
+        luna.compute(obs);
+        float moon_phase = luna.getAge()/Luna::SYNODIC_MONTH;
+        int moon_curPhase = moon_phase * 8;
+        if (moon_curPhase != moon_prevPhase) {
+            moons.push_back(ofxMoon(glm::normalize(planets[2].m_helioC) * 110., moon_phase));
+            moon_prevPhase = moon_curPhase;
+        }
     }
     
-    // Year's cycles, Months & Days
-    if (oneYearIn == "" ) {
-        oneYearIn = ofToString(year+1) + "/" + ofToString(month,2,'0') + "/" + ofToString(int(day),2,'0');
-        cout << "One year in day " << oneYearIn << endl;
-    }
-    else if (oneYearIn == date) {
-        oneYearIn = "";
-#ifdef MOON_PHASES
-        moons.clear();
-#endif
-        lines.clear();
-    }
-    else if (month != prevMonth && int(day) == 1) {
-        
-        SrcLine newLine;
-        newLine.A = toEarth * 80.;
-        newLine.B = toEarth * 90.;
-        
-        newLine.text = month_names[month-1];
-        newLine.T = toEarth * 70.;
-        
-        lines.push_back(newLine);
-    }
-    else if (int(day) != int(prevDay)) {
-        int dow = TimeOps::toDOW( obs.getJD() );
-        
-        SrcLine newLine;
-
-        if (dow == 0) {
-            newLine.A = toEarth * 82.5;
+    if (bHudLines) {
+        // Equinoxes & Solstices
+        if (abs(toEarth.dot(v_equi)) > .9999995 && !bWriten) {
+            SrcLine newLine;
+            newLine.A = planets[2].m_helioC;
+            newLine.B = toEarth * 90.;
+            
+            newLine.text = "Eq. " + ofToString(int(day),2,'0');
+            newLine.T = toEarth * 104. + ofPoint(0.,0.,2);
+            
+            lines.push_back(newLine);
+            bWriten = true;
+        }
+        else if (abs(toEarth.dot(v_equi)) < .001 && !bWriten) {
+            SrcLine newLine;
+            newLine.A = planets[2].m_helioC;
+            newLine.B = toEarth * 90.;
+            
+            newLine.text = "So. " + ofToString(int(day),2,'0');
+            newLine.T = toEarth * 104. + ofPoint(0.,0.,2);
+            
+            lines.push_back(newLine);
+            bWriten = true;
         }
         else {
-            newLine.A = toEarth * 85.;
+            bWriten = false;
         }
-        newLine.B = toEarth.normalize() * 90.;
-        lines.push_back(newLine);
+        
+        // Year's cycles, Months & Days
+        if (oneYearIn == "" ) {
+            oneYearIn = ofToString(year+1) + "/" + ofToString(month,2,'0') + "/" + ofToString(int(day),2,'0');
+            cout << "One year in day " << oneYearIn << endl;
+        }
+        else if (oneYearIn == date) {
+            oneYearIn = "";
+            if (bMoonPhases) {
+                moons.clear();
+            }
+            lines.clear();
+        }
+        else if (month != prevMonth && int(day) == 1) {
+            
+            SrcLine newLine;
+            newLine.A = toEarth * 80.;
+            newLine.B = toEarth * 90.;
+            
+            newLine.text = month_names[month-1];
+            newLine.T = toEarth * 70.;
+            
+            lines.push_back(newLine);
+        }
+        else if (int(day) != int(prevDay)) {
+            int dow = TimeOps::toDOW( obs.getJD() );
+            
+            SrcLine newLine;
+            
+            if (dow == 0) {
+                newLine.A = toEarth * 82.5;
+            }
+            else {
+                newLine.A = toEarth * 85.;
+            }
+            newLine.B = toEarth.normalize() * 90.;
+            lines.push_back(newLine);
+        }
+        
+        prevYear = year;
+        prevMonth = month;
+        prevDay = day;
     }
-    
-    prevYear = year;
-    prevMonth = month;
-    prevDay = day;
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    
-    // Set Camera
-//    cam.setTarget(planets[2].m_helioC);
-
     ofEnableDepthTest();
     ofEnableAlphaBlending();
 
@@ -347,22 +369,20 @@ void ofApp::draw(){
 
     // Draw Sun
     ofSetColor(255);
-#ifdef DEBUG_AXIS
-    ofDrawAxis(15);
-#endif
-    ofDrawSphere(10);
+    ofDrawSphere(6. * earthSize);
 
     // Draw Planets and their orbits (HelioCentric)
     for ( unsigned int i = 0; i < planets.size(); i++) {
-#ifdef BODIES_TRAIL
-        planets[i].drawTrail(ofFloatColor(.5));
-#endif
+        if (bBodiesTrail) {
+            planets[i].drawTrail(ofFloatColor(.5));
+        }
+        
         if (planets[i].getId() != EARTH) {
-            planets[i].draw(ofFloatColor(.9));
-#ifdef BODIES_ECLIP_HELIO
-            ofSetColor(120, 100);
-            ofDrawLine(ofPoint(0.), planets[i].m_helioC);
-#endif
+            planets[i].draw(ofFloatColor(.9), planetsSizes[i] * earthSize);
+            if (bHelioCoords) {
+                ofSetColor(120, 100);
+                ofDrawLine(ofPoint(0.), planets[i].m_helioC);
+            }
         }
     }
     
@@ -370,14 +390,16 @@ void ofApp::draw(){
     //  SATELLITES
     //  ---------------------------------------
     for (unsigned int i = 0; i < satellites.size(); i++) {
-#ifdef BODIES_TRAIL
-        satellites[i].drawHeliocentricTrail(palette[4]);
-#endif
-#ifdef BODIES_ECLIP_HELIO
-        ofSetColor(120, 100);
-        ofDrawLine(ofPoint(0.), satellites[i].m_helioC);
-#endif
-        satellites[i].draw(ofFloatColor(1.));
+        if (bBodiesTrail) {
+            satellites[i].drawHeliocentricTrail(palette[4]);
+        }
+        
+        if (bHelioCoords) {
+            ofSetColor(120, 100);
+            ofDrawLine(ofPoint(0.), satellites[i].m_helioC);
+        }
+        
+        satellites[i].draw(ofFloatColor(1.), satellitesSize * earthSize);
     }
 #endif
 
@@ -386,81 +408,74 @@ void ofApp::draw(){
     // ECLIPTIC GEOCENTRIC COORD SYSTEM
     // --------------------------------------- begin Geocentric Ecliptic
     ofTranslate(planets[2].m_helioC);
-#ifdef DEBUG_AXIS
-    ofDrawAxis(10);
-#endif
 
-#ifdef BODIES_ECLIP_GEO
-    // Check that Geocentric Vector to planets match
-    ofSetColor(100,100);
-    for ( int i = 0; i < planets.size(); i++) {
-        if (planets[i].getId() != EARTH ) {
-            ofPoint toPlanet = toOf(planets[i].getEclipticGeocentric().getVector(AU)) * scale;
-            ofDrawLine(ofPoint(0.), toPlanet);
+    if (bEclipCoords) {
+        // Check that Geocentric Vector to planets match
+        ofSetColor(100,100);
+        for ( int i = 0; i < planets.size(); i++) {
+            if (planets[i].getId() != EARTH ) {
+                ofPoint toPlanet = toOf(planets[i].getEclipticGeocentric().getVector(AU)) * scale;
+                ofDrawLine(ofPoint(0.), toPlanet);
+            }
         }
-    }
-    
+        
 #ifdef SATELLITES
-    for (unsigned int i = 0; i < satellites.size(); i++) {
-        ofDrawLine(ofPoint(0.), satellites[i].m_geoC);
+        for (unsigned int i = 0; i < satellites.size(); i++) {
+            ofDrawLine(ofPoint(0.), satellites[i].m_geoC);
+        }
+#endif
     }
-#endif
-    
-#endif
-    
+
     ofPushMatrix();
     
     // EQUATORIAL COORD SYSTEM
     // --------------------------------------- begin Equatorial
     ofRotateXRad(-obs.getObliquity());
     
-#ifdef DEBUG_AXIS
-    ofDrawAxis(7);
-#endif
+    if (bEquatDir) {
+        // Poles, Equinoxes and Solsices
+        float small = 2.3529411765 * earthSize;
+        float big = 3.2352941176 * earthSize;
+        ofSetColor(palette[2], 100);
+        ofPoint n_pole = ofPoint(0., 0., 1.);
+        ofPoint s_sols = ofPoint(0., 1., 0.);
+        ofDrawLine(s_sols * small,s_sols * -small);
+        
+        ofSetColor(palette[2]);
+        ofDrawLine(n_pole * small, n_pole * -small);
+        ofDrawLine(v_equi * small, v_equi * -small);
+        
+        ofSetColor(255);
+        ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
+        ofDrawBitmapString("N", n_pole * big);
+        ofDrawBitmapString("S", -n_pole * big);
+    }
     
-#ifdef EQUAT_DIR
-    // Poles, Equinoxes and Solsices
-    ofSetColor(palette[2], 100);
-    ofPoint n_pole = ofPoint(0., 0., 1.);
-    ofPoint s_sols = ofPoint(0., 1., 0.);
-    ofDrawLine(s_sols * 4.,s_sols * -4);
-    
-    ofSetColor(palette[2]);
-    ofDrawLine(n_pole * 4.,n_pole * -4.);
-    ofDrawLine(v_equi * 4., v_equi * -4);
-    
-    ofSetColor(255);
-    ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
-    ofDrawBitmapString("N", n_pole * 5.5);
-    ofDrawBitmapString("S", -n_pole * 5.5);
-#endif
-    
-#ifdef BODIES_EQUAT
-    // Check that Equatorial Vector to planets match
-    ofSetColor(palette[1]);
-    for ( int i = 0; i < planets.size(); i++) {
-        if (planets[i].getId() != EARTH ) {
-            glm::vec3 toPlanet = toOf(planets[i].getEquatorialVector(AU)) * scale;
-            ofDrawLine(glm::vec3(0.), toPlanet);
+    if (bEquatCoords) {
+        // Check that Equatorial Vector to planets match
+        ofSetColor(palette[1]);
+        for ( int i = 0; i < planets.size(); i++) {
+            if (planets[i].getId() != EARTH ) {
+                glm::vec3 toPlanet = toOf(planets[i].getEquatorialVector(AU)) * scale;
+                ofDrawLine(glm::vec3(0.), toPlanet);
+            }
         }
-    }
-    
+        
 #ifdef SATELLITES
-    for (unsigned int i = 0; i < satellites.size(); i++) {
-        ofDrawLine(ofPoint(0.), toOf(satellites[i].getECI().getPosition(AU) * earthScaleFactor ));
+        for (unsigned int i = 0; i < satellites.size(); i++) {
+            ofDrawLine(ofPoint(0.), toOf(satellites[i].getECI().getPosition(AU) * earthScaleFactor ));
+        }
+#endif
     }
-#endif
-    
-#endif
 
-#ifdef EQUAT_DISK
-    ofNoFill();
-    ofSetColor(255,0,0);
-    ofDrawCircle(ofPoint(0.,0.,0.), 4.);
-    
-    // Disk
-    drawDisk(3, 4, 4, palette[1]);
-#endif
+    if (bEquatDisk) {
+        ofNoFill();
+        ofSetColor(255,0,0);
+        ofDrawCircle( ofPoint(0.,0.,0.), 2.3529411765 * earthSize);
+        
+        // Disk
+        drawDisk(1.7647058824 * earthSize, 2.3529411765 * earthSize, 4, palette[1]);
+    }
 
     ofPushMatrix();
     // -------------------------------------- begin of Sphere
@@ -471,28 +486,20 @@ void ofApp::draw(){
     // -------------------------------------- begin Hour Angle (Topo)
     // Rotate earth
     ofRotateYRad( TimeOps::toGreenwichSiderealTime(obs.getJD()) );
-#ifdef DEBUG_AXIS
-    ofDrawAxis(5);
-#endif
     
     // Earth
     ofFill();
-#ifdef TOPO_SHADER
     ofSetColor(255);
     earth_shader.begin();
     earth_shader.setUniformTexture("u_diffuse", earth_texture, 0);
     ofDrawSphere(earthSize);
     earth_shader.end();
-#else
-    ofSetColor(ofFloatColor(.9));
-    ofDrawSphere(earthSize);
-#endif
 
-#ifdef TOPO_ARROW
-    // Location arrow
-    ofSetColor(255);
-    ofDrawLine(ofPoint(0.), loc);
-#endif
+    if (bTopoArrow) {
+        // Location arrow
+        ofSetColor(255);
+        ofDrawLine(loc, loc * 1.1764 * earthSize );
+    }
 
     ofPushMatrix();
     // -------------------------------------- begin location (topo)
@@ -500,83 +507,77 @@ void ofApp::draw(){
     ofRotateXDeg(lat);
     ofTranslate(0., 0., -earthSize);
     
-#ifdef TOPO_DISK
-    // Check that Horizontal Vector to planets match
-    drawDisk(.5, .8, 5, palette[3]);
-#endif
+    if (bTopoDisk) {
+        // Check that Horizontal Vector to planets match
+        drawDisk(0.2941176471 * earthSize, 0.47058823529 * earthSize, 5, palette[3]);
+    }
     
     ofPushMatrix();
     // -------------------------------------- begin Horizontal (topo)xw
     ofRotateXDeg(90);
     
-#ifdef TOPO_HUD
-    drawDial(.8, .05, 4, palette[3]);
-#endif
+    if (bTopoHud) {
+        drawDial(0.47058823529 * earthSize, .05, 4, palette[3]);
+    }
     
     ofRotateYDeg(90);
-#ifdef TOPO_HUD
-    drawDial(.8, .05, 4, palette[3]);
-#endif
     
-#ifdef DEBUG_AXIS
-    ofDrawAxis(2);
-#endif
+    if (bTopoHud) {
+        drawDial(0.47058823529 * earthSize, .05, 4, palette[3]);
+    }
     
     ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
     
-#ifdef SUN_HORIZ
-    ofSetColor(palette[3], 250);
-    if (sun.getHorizontal().getAltitud(RADS) > 0) {
-        ofPoint toSun = toOf(sun.getHorizontalVector()) * scale;
-        ofDrawLine(ofPoint(0.), toSun);
-#ifdef TOPO_LABELS
-        ofDrawBitmapString(sun.getBodyName(), toSun);
-#endif
-    }
-#endif
-    
-#ifdef MOON_HORIZ
-    ofSetColor(palette[3], 250);
-    if (moon.getHorizontal().getAltitud(RADS) > 0) {
-        ofPoint toMoon = toOf(moon.getHorizontalVector()) * 20 * scale;
-        ofDrawLine(ofPoint(0.), toMoon);
-#ifdef TOPO_LABELS
-        ofDrawBitmapString(moon.getBodyName(), toMoon);
-#endif
-    }
-#endif
+    if (bHorizCoords) {
+        
+        if (sun.getHorizontal().getAltitud(RADS) > 0) {
+            ofSetColor(palette[3], 250);
+            ofPoint toSun = toOf(sun.getHorizontalVector(AU) ) * scale;
+            ofDrawLine(ofPoint(0.), toSun);
+            
+            if (bTopoLables) {
+                ofDrawBitmapString(sun.getName(), toSun);
+            }
+        }
+        
+        if (moon.getHorizontal().getAltitud(RADS) > 0) {
+            ofSetColor(palette[3], 250);
+            ofPoint toMoon = toOf(moon.getHorizontalVector(AU)) * 20 * scale;
+            ofDrawLine(ofPoint(0.), toMoon);
+            if (bTopoLables) {
+                ofDrawBitmapString(moon.getName(), toMoon);
+            }
+        }
 
-#ifdef BODIES_HORIZ
-    ofSetColor(palette[3], 100);
-    for ( int i = 0; i < planets.size(); i++) {
-        if (planets[i].getId() != EARTH &&
-            planets[i].getHorizontal().getAltitud(RADS) > 0) {
-            ofPoint toPlanet = toOf(planets[i].getHorizontalVector(AU)) * scale;
-            ofDrawLine(ofPoint(0.), toPlanet);
-#ifdef TOPO_LABELS
-            ofDrawBitmapString(planets[i].getBodyName(), toPlanet);
-#endif
+        ofSetColor(palette[3], 100);
+        for ( int i = 0; i < planets.size(); i++) {
+            if (planets[i].getId() != EARTH &&
+                planets[i].getHorizontal().getAltitud(RADS) > 0) {
+                ofPoint toPlanet = toOf(planets[i].getHorizontalVector(AU)) * scale;
+                ofDrawLine(ofPoint(0.), toPlanet);
+                
+                if (bTopoLables) {
+                    ofDrawBitmapString(planets[i].getName(), toPlanet);
+                }
+            }
         }
     }
-#endif
     
-#ifdef TOPO_HUD
-    for (int i = 0; i < topoLines.size(); i++) {
-        ofSetColor(palette[3]);
-        ofPoint a = toOf(topoLines[i].A.getVector());
-        ofPoint b = toOf(topoLines[i].B.getVector());
-        
-#ifdef TOPO_HUD_LABLES
-        if (topoLines[i].text != "") {
-            ofSetColor(palette[4]);
-            ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
-            ofDrawBitmapString (topoLines[i].text, toOf(topoLines[i].T.getVector()));
+    if (bTopoHud) {
+        for (int i = 0; i < topoLines.size(); i++) {
+            ofSetColor(palette[3]);
+            ofPoint a = toOf(topoLines[i].A.getVector());
+            ofPoint b = toOf(topoLines[i].B.getVector());
+            
+            if (bTopoHudLables && topoLines[i].text != "") {
+                ofSetColor(palette[4]);
+                ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
+                ofDrawBitmapString (topoLines[i].text, toOf(topoLines[i].T.getVector()));
+            }
+            
+            ofDrawLine(a, b);
         }
-#endif
-        
-        ofDrawLine(a, b);
     }
-#endif
     
     // --------------------------------------- end Horizontal (topo)
     ofPopMatrix();
@@ -603,32 +604,32 @@ void ofApp::draw(){
 
     // Moon
     ofFill();
-#ifdef BODIES_TRAIL
-    moon.drawTrail(ofFloatColor(.4));
-#endif
-    moon.draw(ofFloatColor(0.6));
-
-#ifdef MOON_PHASES
-    // Moon Phases
-    moon_shader.begin();
-    for ( int i = 0; i < moons.size(); i++ ) {
-        moons[i].draw(billboard, moon_shader, 2.);
+    if (bBodiesTrail) {
+        moon.drawTrail(ofFloatColor(.4));
     }
-    moon_shader.end();
-#endif
+    moon.draw(ofFloatColor(0.6), moonSize);
 
-#ifdef HUD_LINES
+    if (bMoonPhases) {
+        // Moon Phases
+        moon_shader.begin();
+        for ( int i = 0; i < moons.size(); i++ ) {
+            moons[i].draw(billboard, moon_shader, 2.);
+        }
+        moon_shader.end();
+    }
+
     // Draw Hud elements
-    ofSetColor(255);
-    for ( int i = 0; i < lines.size(); i++ ) {
-        ofDrawLine(lines[i].A, lines[i].B);
-
-        if (lines[i].text != "") {
-            ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
-            ofDrawBitmapString (lines[i].text, lines[i].T);
+    if (bHudLines) {
+        ofSetColor(255);
+        for ( int i = 0; i < lines.size(); i++ ) {
+            ofDrawLine(lines[i].A, lines[i].B);
+            
+            if (lines[i].text != "") {
+                ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD );
+                ofDrawBitmapString (lines[i].text, lines[i].T);
+            }
         }
     }
-#endif
 
     // --------------------------------------- end Heliocentric Ecliptic
     ofPopMatrix();
@@ -646,27 +647,27 @@ void ofApp::draw(){
     syphon.publishScreen();
 #endif
     
-#ifdef DEBUG_FPS
-    ofDrawBitmapString(ofToString(ofGetFrameRate()), 5, 15);
-#endif
+    if (bDebugFps) {
+        ofDrawBitmapString(ofToString(ofGetFrameRate()), 5, 15);
+    }
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
     
-    if ( key == 'r' ) {
+    if ( key == '<' ) {
         time_offset -= time_step;
     }
-    else if ( key == 'f' ) {
+    else if ( key == '>' ) {
         time_offset += time_step;
     }
-    if ( key == '-' ) {
+    else if ( key == ',' ) {
         time_step -= 0.0001;
     }
-    else if ( key == '=' ) {
+    else if ( key == '.' ) {
         time_step += 0.0001;
     }
-    else if ( key == 'v' ) {
+    else if ( key == '/' ) {
         time_offset = 0;
         moon.clearTale();
         for (unsigned int i = 0; i < planets.size(); i++){
@@ -676,8 +677,67 @@ void ofApp::keyPressed(int key){
             satellites[i].clearTale();
         }
     }
+    else if ( key == '[' ) {
+        earthSize -= 0.5;
+        earthScaleFactor = ((earthSize * CoordOps::AU_TO_KM)/CoordOps::EARTH_EQUATORIAL_RADIUS_KM);
+        moonSize = (earthSize/CoordOps::EARTH_EQUATORIAL_RADIUS_KM) * Luna::DIAMETER_KM;
+    }
+    else if ( key == ']' ) {
+        earthSize += 0.5;
+        earthScaleFactor = ((earthSize * CoordOps::AU_TO_KM)/CoordOps::EARTH_EQUATORIAL_RADIUS_KM);
+        moonSize = (earthSize/CoordOps::EARTH_EQUATORIAL_RADIUS_KM) * Luna::DIAMETER_KM;
+    }
+    else if ( key == '{' ) {
+        scale -= 10;
+    }
+    else if ( key == '}' ) {
+        scale += 10;
+    }
     else if ( key == 'f') {
         ofToggleFullscreen();
+    }
+    else if ( key == '1' ) {
+        bHelioCoords = !bHelioCoords;
+    }
+    else if ( key == '2' ) {
+        bEclipCoords = !bEclipCoords;
+    }
+    else if ( key == '3' ) {
+        bEquatCoords = !bEquatCoords;
+    }
+    else if ( key == '4' ) {
+        bEquatDir = !bEquatDir;
+    }
+    else if ( key == '5' ) {
+        bEquatDisk = !bEquatDisk;
+    }
+    else if ( key == '6' ) {
+        bTopoArrow = !bTopoArrow;
+    }
+    else if ( key == '7' ) {
+        bTopoDisk = !bTopoDisk;
+    }
+    else if ( key == '8' ) {
+        bTopoHud = !bTopoHud;
+    }
+    else if ( key == '9' ) {
+        bTopoHudLables = !bTopoHudLables;
+        bTopoLables = !bTopoLables;
+    }
+    else if ( key == '0' ) {
+        bHorizCoords = !bHorizCoords;
+    }
+    else if ( key == 't' ) {
+        bBodiesTrail = !bBodiesTrail;
+    }
+    else if ( key == 'h' ) {
+        bHudLines = !bHudLines;
+    }
+    else if ( key == 'm' ) {
+        bMoonPhases = !bMoonPhases;
+    }
+    else if ( key == 'd' ) {
+        bDebugFps = !bDebugFps;
     }
     else {
         time_play = !time_play;
