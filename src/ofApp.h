@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
-#include "ofxSmartShader.h"
+#include "ofxShader.h"
 
 #define GEOLOC_FILE "geoLoc.csv"
 
@@ -13,10 +13,6 @@
 #include "ofxBody.h"
 #include "ofxMoon.h"
 #include "ofxSatellite.h"
-
-#ifdef TARGET_OSX
-#include "ofxSyphon.h"
-#endif
 
 #define SATELLITES
 
@@ -52,10 +48,6 @@ public:
     void dragEvent(ofDragInfo dragInfo);
     void gotMessage(ofMessage msg);
     
-#ifdef TARGET_OSX
-    ofxSyphonServer syphon;
-#endif
-    
     // Observer
     Observer        obs;
     // Place
@@ -89,7 +81,7 @@ public:
     ofxBody         moon;
     float           moonSize;
     float           moonScaleDistance; // for the distance
-    ofxSmartShader  moon_shader;
+    ofxShader  moon_shader;
     int             moon_prevPhase;
     vector<ofxMoon> moons;
     Luna            luna;
@@ -99,7 +91,7 @@ public:
     float           earthSize;
     float           earthScaleFactor;
     ofTexture       earth_texture;
-    ofxSmartShader  earth_shader;
+    ofxShader       earth_shader;
     
 #ifdef SATELLITES
     // SATELLITES

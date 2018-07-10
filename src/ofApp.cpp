@@ -67,10 +67,6 @@ void ofApp::setup(){
     ofDisableArbTex();
     ofSetBackgroundColor(0);
     ofSetCircleResolution(36);
-    
-#ifdef TARGET_OSX
-    syphon.setName("Solar");
-#endif
 
     cam.setPosition(-71.8425, 80.3674, 4.14539);
     bWriten = false;
@@ -641,11 +637,6 @@ void ofApp::draw(){
     // Draw Date
     drawString(date + " " + time, ofGetWidth()*.5, ofGetHeight()-30);
     drawString("lng: " + ofToString(lng,2,'0') + "  lat: " + ofToString(lat,2,'0'), ofGetWidth()*.5, ofGetHeight()-10);
-
-#ifdef TARGET_OSX
-    // Share screen through Syphon
-    syphon.publishScreen();
-#endif
     
     if (bDebugFps) {
         ofDrawBitmapString(ofToString(ofGetFrameRate()), 5, 15);

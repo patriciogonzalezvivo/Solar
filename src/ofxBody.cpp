@@ -15,12 +15,12 @@ ofxBody::ofxBody(BodyId _planet) {
     m_bodyId = _planet;
 }
 
-glm::vec3 ofxBody::getGeoPosition(UNIT_TYPE _type) {
+glm::vec3 ofxBody::getGeoPosition(DISTANCE_UNIT _type) {
     Vector gPos = getEclipticGeocentric().getVector(_type);
     return glm::vec3(gPos.x, gPos.y, gPos.z);
 }
 
-glm::vec3 ofxBody::getHelioPosition(UNIT_TYPE _type) {
+glm::vec3 ofxBody::getHelioPosition(DISTANCE_UNIT _type) {
     Vector hPos = getEclipticHeliocentric().getVector(_type);
     return glm::vec3(hPos.x, hPos.y, hPos.z);
 }

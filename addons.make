@@ -1,1 +1,1 @@
-ofxSmartShader
+ofxShader
