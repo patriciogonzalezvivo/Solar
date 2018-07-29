@@ -9,6 +9,8 @@ Release*/
 *.pyc
 .svn/
 
+.vscode/browse.db*
+
 
 #XCode
 *.pbxuser
